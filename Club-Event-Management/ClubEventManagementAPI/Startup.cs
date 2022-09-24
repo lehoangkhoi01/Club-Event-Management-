@@ -1,6 +1,7 @@
 using ApplicationCore.Interfaces.Repository;
 using ApplicationCore.Interfaces.Services;
 using ApplicationCore.Services;
+using ClubEventManagementAPI.Configuration;
 using Infrastructure;
 using Infrastructure.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -50,41 +51,14 @@ namespace ClubEventManagementAPI
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
                     };
                 });
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ClubEventManagementAPI", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Please insert token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "bearer"
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[]{}
-                    }
-                });
-            });
+            
             services.AddDbContext<ClubEventManagementContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("ClubEventManagement"));
             }, ServiceLifetime.Singleton);
-            services.AddSingleton<IAccountService, AccountService>();
-            services.AddSingleton<IAccountRepository, AccountRepository>();
-            services.AddSingleton<IAuthorizationRepository, AuthorizationRepository>();
-            services.AddSingleton<IAuthorizationService, AuthorizationService>();
+
+            services.AddWebServices(Configuration);
+            services.AddCoreServices(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
