@@ -25,5 +25,15 @@ namespace ApplicationCore.Services
 
             await _repository.AddNewAccount(user);
         }
+
+        public AdminAccount GetAdminAccount(UserIdentity user)
+        {
+            return _repository.GetAdminAccount(user.Email);
+        }
+
+        public async Task<StudentAccount> GetStudentAccount(UserIdentity user)
+        {
+            return await _repository.GetStudentAccount(user.Email);
+        }
     }
 }
