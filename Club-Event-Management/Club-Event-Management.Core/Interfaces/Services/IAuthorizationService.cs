@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApplicationCore.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +9,8 @@ namespace ApplicationCore.Interfaces.Services
 {
     public interface IAuthorizationService
     {
-        public Task<UserIdentity> Login(string email);
+        public Task<UserIdentity> Login(UserLogin userLogin);
 
-        public string GenerateToken(UserIdentity user); 
+        public Task<string> GenerateToken(UserIdentity user); 
     }
 }

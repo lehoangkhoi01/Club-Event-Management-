@@ -19,7 +19,7 @@ namespace ClubEventManagementAPI.Controllers
         {
             var currentUser = GetCurrentUser();
 
-            return Ok($"Hi {currentUser.Email}, you are an {currentUser.RoleName}");
+            return Ok($"Hi {currentUser.FullName}, you are an {currentUser.RoleName}");
         }
 
         [HttpGet("Students")]
@@ -28,7 +28,7 @@ namespace ClubEventManagementAPI.Controllers
         {
             var currentUser = GetCurrentUser();
 
-            return Ok($"Hi {currentUser.Email}, you are a {currentUser.RoleName}");
+            return Ok($"Hi {currentUser.FullName}, you are a {currentUser.RoleName}");
         }
 
         [HttpGet("Public")]
@@ -48,7 +48,8 @@ namespace ClubEventManagementAPI.Controllers
                 return new UserViewModel
                 {
                     Email = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
-                    RoleName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
+                    RoleName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value,
+                    FullName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value
                 };
             }
             return null;

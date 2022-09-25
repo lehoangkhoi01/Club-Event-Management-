@@ -9,5 +9,7 @@ namespace ApplicationCore.Interfaces.Services
     public interface IAccountService
     {
         public Task Add(UserIdentity user);
+        public Task<StudentAccount> GetStudentAccount(UserIdentity user);
+        public AdminAccount GetAdminAccount(UserIdentity user);
     }
 }

@@ -39,5 +39,6 @@ namespace Infrastructure.DAOs
                 .FirstOrDefaultAsync(u => u.Email == email);
             
         }
+
     }
 }

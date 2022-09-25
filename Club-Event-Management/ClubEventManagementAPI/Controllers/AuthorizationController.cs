@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Interfaces.Services;
 using System.Threading.Tasks;
+using ApplicationCore.Models;
 
 namespace ClubEventManagementAPI.Controllers
 {
@@ -10,20 +11,23 @@ namespace ClubEventManagementAPI.Controllers
     public class AuthorizationController : ControllerBase
     {
         private readonly ApplicationCore.Interfaces.Services.IAuthorizationService _service;
-        public AuthorizationController(ApplicationCore.Interfaces.Services.IAuthorizationService service)
+        private readonly IAccountService _accountService;
+        public AuthorizationController(ApplicationCore.Interfaces.Services.IAuthorizationService service, 
+                                        IAccountService accountService)
         {
             _service = service;
+            _accountService = accountService;
         }
 
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] string email)
+        public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
-            var user = await _service.Login(email);
+            var user = await _service.Login(userLogin);
             if(user != null)
             {
-                var token = _service.GenerateToken(user);
+                var token = await _service.GenerateToken(user);
                 return Ok(token);
             }
             return NotFound();
