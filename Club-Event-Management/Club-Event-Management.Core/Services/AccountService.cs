@@ -31,9 +31,19 @@ namespace ApplicationCore.Services
             return _repository.GetAdminAccount(user.Email);
         }
 
+        public async Task<IEnumerable<AdminAccount>> GetAdminList()
+        {
+            return await _repository.GetAdminList();
+        }
+
         public async Task<StudentAccount> GetStudentAccount(UserIdentity user)
         {
             return await _repository.GetStudentAccount(user.Email);
+        }
+
+        public async Task<IEnumerable<StudentAccount>> GetStudentList()
+        {
+            return await _repository.GetStudentList();
         }
     }
 }

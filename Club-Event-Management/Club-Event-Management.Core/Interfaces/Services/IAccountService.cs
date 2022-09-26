@@ -11,5 +11,7 @@ namespace ApplicationCore.Interfaces.Services
         public Task Add(UserIdentity user);
         public Task<StudentAccount> GetStudentAccount(UserIdentity user);
         public AdminAccount GetAdminAccount(UserIdentity user);
+        public Task<IEnumerable<StudentAccount>> GetStudentList();
+        public Task<IEnumerable<AdminAccount>> GetAdminList();
     }
 }

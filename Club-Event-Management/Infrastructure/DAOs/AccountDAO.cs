@@ -63,5 +63,24 @@ namespace Infrastructure.DAOs
             var admin = dbContext.AdminAccounts.FirstOrDefault(u => u.UserIdentity.Email == email);
             return admin;
         }
+
+        public async Task<IEnumerable<StudentAccount>> GetStudentAccountList()
+        {
+            var dbContext = new ClubEventManagementContext();
+            var studentList = await dbContext.StudentAccounts
+                            .Include(s => s.UserIdentity)
+                            .Include(s => s.ClubProfiles)
+                            .ToListAsync();
+            return studentList;
+        }
+
+        public async Task<IEnumerable<AdminAccount>> GetAdminList()
+        {
+            var dbContext = new ClubEventManagementContext();
+            var adminAccount = await dbContext.AdminAccounts
+                                .Include(a => a.UserIdentity)
+                                .ToListAsync();
+            return adminAccount;
+        }
     }
 }

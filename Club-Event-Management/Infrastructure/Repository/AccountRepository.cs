@@ -19,7 +19,13 @@ namespace Infrastructure.Repository
         public AdminAccount GetAdminAccount(string email)
             => AccountDAO.Instance.GetAdminAccount(email);
 
+        public Task<IEnumerable<AdminAccount>> GetAdminList()
+            => AccountDAO.Instance.GetAdminList();
+
         public Task<StudentAccount> GetStudentAccount(string email)
             => AccountDAO.Instance.GetStudentAccount(email);
+
+        public Task<IEnumerable<StudentAccount>> GetStudentList()
+            => AccountDAO.Instance.GetStudentAccountList();
     }
 }

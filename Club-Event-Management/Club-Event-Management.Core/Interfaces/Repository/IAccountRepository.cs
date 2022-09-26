@@ -13,6 +13,9 @@ namespace ApplicationCore.Interfaces.Repository
 
         public Task<StudentAccount> GetStudentAccount(string email);
         public AdminAccount GetAdminAccount(string email);
+
+        public Task<IEnumerable<StudentAccount>> GetStudentList();
+        public Task<IEnumerable<AdminAccount>> GetAdminList();
           
     }
 }
