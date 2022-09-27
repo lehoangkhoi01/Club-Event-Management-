@@ -28,7 +28,6 @@ namespace ClubEventManagementAPI.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
-            throw new Exception();
             var user = await _service.Login(userLogin);
             if(user != null)
             {
