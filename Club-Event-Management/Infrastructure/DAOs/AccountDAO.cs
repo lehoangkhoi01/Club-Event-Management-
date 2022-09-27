@@ -10,7 +10,6 @@ namespace Infrastructure.DAOs
 {
     public class AccountDAO
     {
-        private readonly ClubEventManagementContext _context;
         private static AccountDAO instance;
         private static readonly object instanceLock = new object();
 
