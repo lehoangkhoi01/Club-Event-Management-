@@ -28,7 +28,7 @@ namespace ClubEventManagementAPI.Controllers
             EventPost p = new EventPost
             {
                 Content = post.Content,
-                Picture = post.Content,
+                Picture = post.Picture,
                 CreatedDate = System.DateTime.Now,
                 UpdatedDate = System.DateTime.Now,
                 StudentAccountId = post.StudentAccountId,
@@ -65,7 +65,7 @@ namespace ClubEventManagementAPI.Controllers
             EventPost p = new EventPost
             {
                 Content = post.Content,
-                Picture = post.Content,
+                Picture = post.Picture,
                 UpdatedDate = System.DateTime.Now,
                 StudentAccountId = post.StudentAccountId,
                 EventId = post.EventId,
