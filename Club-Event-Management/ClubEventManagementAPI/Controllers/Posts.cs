@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using ApplicationCore.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace ClubEventManagementAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Student")]
         public async Task<ActionResult<EventPost>> Post(EventPost post)
         {
             if (!ModelState.IsValid)
@@ -40,9 +42,38 @@ namespace ClubEventManagementAPI.Controllers
 
         // GET: api/Posts
         [HttpGet]
-        public async Task<IEnumerable<EventPost>> GetPosts()
+        public async Task<IEnumerable<EventPost>> Get()
         {
             return await _service.GetAllPost();
+        }
+        [HttpDelete]
+        [Authorize(Roles ="Student")]
+        public async Task<ActionResult<EventPost>> Delete(int postId)
+        {
+            await _service.Delete(postId);
+            return Ok();
+        }
+        
+        [HttpPut]
+        [Authorize]
+        public async Task<ActionResult<EventPost>> Put(EventPost post)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            EventPost p = new EventPost
+            {
+                Content = post.Content,
+                Picture = post.Content,
+                UpdatedDate = System.DateTime.Now,
+                StudentAccountId = post.StudentAccountId,
+                EventId = post.EventId,
+
+            };
+
+            await _service.Update(p);
+            return Ok(p);
         }
     }
 }

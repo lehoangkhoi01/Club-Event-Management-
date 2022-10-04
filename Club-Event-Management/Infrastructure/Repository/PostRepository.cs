@@ -14,7 +14,13 @@ namespace Infrastructure.Repository
         public Task AddNewPost(EventPost post)
         => PostDAO.Instance.AddNew(post);
 
+        public Task DeletePost(int postId)
+        => PostDAO.Instance.DeletePost(postId);
+
         public Task<IEnumerable<EventPost>> GetAllPost()
         => PostDAO.Instance.GetAllPost();
+
+        public Task UpdatePost(EventPost post)
+        => PostDAO.Instance.Update(post);
     }
 }

@@ -46,5 +46,21 @@ namespace Infrastructure.DAOs
             var dbContext = new ClubEventManagementContext();
             return await dbContext.EventPosts.Include(p => p.StudentAccount).ThenInclude(a => a.ClubProfiles).Include(c=> c.Event).ThenInclude(b=>b.ClubProfiles).ToListAsync();
         }
+
+        public async Task DeletePost(int postId)
+        {
+            EventPost post = new EventPost();
+            var dbContext = new ClubEventManagementContext();
+            post = dbContext.EventPosts.FirstOrDefault(p => p.EventPostId == postId);
+            dbContext.EventPosts.Remove(post);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task Update(EventPost post)
+        {
+            var dbContext = new ClubEventManagementContext();
+            dbContext.EventPosts.Update(post);
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

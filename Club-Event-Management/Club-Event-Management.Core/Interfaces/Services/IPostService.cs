@@ -10,5 +10,7 @@ namespace ApplicationCore.Interfaces.Services
     {
         public Task Add(EventPost post);
         public Task<IEnumerable<EventPost>> GetAllPost();
+        public Task Delete(int postId);
+        public Task Update(EventPost post);
     }
 }

@@ -10,5 +10,8 @@ namespace ApplicationCore.Interfaces.Repository
     {
         public Task AddNewPost(EventPost post);
         public Task<IEnumerable<EventPost>> GetAllPost();
+        public Task DeletePost(int postId);
+        public Task UpdatePost(EventPost post);
+
     }
 }
