@@ -19,10 +19,6 @@ namespace ApplicationCore.Services
 
         public async Task Add(UserIdentity user)
         {
-            // Hash password
-            // Check existing user
-            // Do other business rules, use case
-
             await _repository.AddNewAccount(user);
         }
 
