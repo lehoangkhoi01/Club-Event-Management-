@@ -16,6 +16,7 @@ namespace ClubEventManagementAPI.Configuration
         {
             services.AddSingleton<IAccountRepository, AccountRepository>();
             services.AddSingleton<IAuthorizationRepository, AuthorizationRepository>();
+            services.AddSingleton<IPostRepository, PostRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ClubEventManagementAPI", Version = "v1" });

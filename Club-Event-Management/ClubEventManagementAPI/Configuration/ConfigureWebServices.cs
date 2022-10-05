@@ -13,6 +13,7 @@ namespace ClubEventManagementAPI.Configuration
         {
             services.AddScoped(typeof(IAccountService), typeof(AccountService));
             services.AddScoped(typeof(IAuthorizationService), typeof(AuthorizationService));
+            services.AddScoped(typeof(IPostService), typeof(PostService));
             services.AddAutoMapper(typeof(MappingProfile));
             return services;
         }
