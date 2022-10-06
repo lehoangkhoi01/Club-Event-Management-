@@ -62,5 +62,11 @@ namespace Infrastructure.DAOs
             dbContext.EventPosts.Update(post);
             await dbContext.SaveChangesAsync();
         }
+
+        public async Task<EventPost> GetPostById(int id)
+        {
+            var dbContext = new ClubEventManagementContext();
+            return await dbContext.EventPosts.FindAsync(id);
+        }
     }
 }

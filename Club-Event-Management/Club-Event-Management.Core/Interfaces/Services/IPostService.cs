@@ -12,5 +12,6 @@ namespace ApplicationCore.Interfaces.Services
         public Task<IEnumerable<EventPost>> GetAllPost();
         public Task Delete(int postId);
         public Task Update(EventPost post);
+        public Task<EventPost> GetPostById(int postId);
     }
 }
