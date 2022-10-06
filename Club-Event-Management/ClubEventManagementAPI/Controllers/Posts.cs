@@ -82,7 +82,7 @@ namespace ClubEventManagementAPI.Controllers
                 CreatedDate = oldPost.CreatedDate,
                 UpdatedDate = System.DateTime.Now,
                 StudentAccountId = oldPost.StudentAccountId,
-                //EventId = oldPost.EventId,
+                EventId = oldPost.EventId,
 
             };
 

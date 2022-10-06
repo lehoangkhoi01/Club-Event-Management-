@@ -44,7 +44,8 @@ namespace Infrastructure.DAOs
         public async Task<IEnumerable<EventPost>> GetAllPost()
         {
             var dbContext = new ClubEventManagementContext();
-            return await dbContext.EventPosts.Include(p => p.StudentAccount).ThenInclude(a => a.ClubProfiles).Include(c=> c.Event).ThenInclude(b=>b.ClubProfiles).ToListAsync();
+            return await dbContext.EventPosts.Include(p => p.StudentAccount).ThenInclude(a => a.UserIdentity.Role).Include(e => e.StudentAccount.ClubProfiles)
+                .Include(c=> c.Event).ThenInclude(b=>b.EventType).Include(d=>d.Event.EventCategory).ToListAsync();
         }
 
         public async Task DeletePost(int postId)
