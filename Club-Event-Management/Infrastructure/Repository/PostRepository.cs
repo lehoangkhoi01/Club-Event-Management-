@@ -20,6 +20,9 @@ namespace Infrastructure.Repository
         public Task<IEnumerable<EventPost>> GetAllPost()
         => PostDAO.Instance.GetAllPost();
 
+        public Task<EventPost> GetPostById(int id)
+        => PostDAO.Instance.GetPostById(id);
+
         public Task UpdatePost(EventPost post)
         => PostDAO.Instance.Update(post);
     }

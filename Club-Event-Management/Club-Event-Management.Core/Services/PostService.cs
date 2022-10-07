@@ -32,6 +32,11 @@ namespace ApplicationCore.Services
             return await _repository.GetAllPost();
         }
 
+        public async Task<EventPost> GetPostById(int postId)
+        {
+            return await _repository.GetPostById(postId);
+        }
+
         public async Task Update(EventPost post)
         {
             await _repository.UpdatePost(post);

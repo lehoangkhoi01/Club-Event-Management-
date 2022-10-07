@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using ApplicationCore.Interfaces.Services;
+using ClubEventManagementAPI.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -16,10 +17,10 @@ namespace ClubEventManagementAPI.Controllers
         {
             _service = service;
         }
-
-        [HttpPost]
+    //POST API CREATE
+        [HttpPost("Create")]
         [Authorize(Roles = "Student")]
-        public async Task<ActionResult<EventPost>> Post(EventPost post)
+        public async Task<ActionResult<EventPostViewModel>> Post(EventPostViewModel post)
         {
             if (!ModelState.IsValid)
             {
@@ -46,29 +47,42 @@ namespace ClubEventManagementAPI.Controllers
         {
             return await _service.GetAllPost();
         }
-        [HttpDelete]
+
+        //DELETE
+        [HttpDelete("Delete")]
         [Authorize(Roles ="Student")]
         public async Task<ActionResult<EventPost>> Delete(int postId)
         {
+            if (_service.GetPostById(postId) == null)
+            {
+                return NotFound();
+            }
             await _service.Delete(postId);
             return Ok();
         }
         
-        [HttpPut]
+        //PUT API UPDATE
+        [HttpPut("Update")]
         [Authorize]
-        public async Task<ActionResult<EventPost>> Put(EventPost post)
+        public async Task<ActionResult<EventPostViewModel>> Put(EventPostViewModel post)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            EventPost oldPost = await _service.GetPostById(post.EventPostId);
+            if (oldPost == null)
+            {
+                return NotFound();
+            }
             EventPost p = new EventPost
             {
                 Content = post.Content,
                 Picture = post.Picture,
+                CreatedDate = oldPost.CreatedDate,
                 UpdatedDate = System.DateTime.Now,
-                StudentAccountId = post.StudentAccountId,
-                EventId = post.EventId,
+                StudentAccountId = oldPost.StudentAccountId,
+                EventId = oldPost.EventId,
 
             };
 
