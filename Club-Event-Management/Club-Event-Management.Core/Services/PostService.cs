@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Interfaces.Repository;
 using ApplicationCore.Interfaces.Services;
+using AutoMapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace ApplicationCore.Services
     public class PostService : IPostService
     {
         private readonly IPostRepository _repository;
+        private readonly IMapper _mapper;
 
         public PostService(IPostRepository repository)
         {
@@ -19,6 +21,8 @@ namespace ApplicationCore.Services
 
         public async Task Add(EventPost post)
         {
+            post.CreatedDate = DateTime.Now;
+            post.UpdatedDate = DateTime.Now;
             await _repository.AddNewPost(post);
         }
 
