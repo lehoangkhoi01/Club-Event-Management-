@@ -3,8 +3,11 @@ using ApplicationCore.Interfaces.Services;
 using AutoMapper;
 using ClubEventManagementAPI.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ClubEventManagementAPI.Controllers
@@ -20,9 +23,13 @@ namespace ClubEventManagementAPI.Controllers
             _service = service;
             _mapper = mapper;
         }
-    //POST API CREATE
+
         [HttpPost("Create")]
         [Authorize(Roles = "Student")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<ActionResult<EventPostViewModel>> Post(EventPostViewModel post)
         {
             if (!ModelState.IsValid)
@@ -39,6 +46,28 @@ namespace ClubEventManagementAPI.Controllers
         public async Task<IEnumerable<EventPost>> Get()
         {
             return await _service.GetAllPost();
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult<EventPost>> GetPostById(int id)
+        {
+            if(id <= 0)
+            {
+                ModelState.AddModelError("Invalid id", "The id is not valid");
+                return BadRequest(ModelState);
+            }
+            EventPost post = await _service.GetPostById(id);
+            if(post == null)
+            {
+                return NotFound();
+            }
+            return Ok(post);
+
         }
 
         //DELETE
@@ -76,7 +105,6 @@ namespace ClubEventManagementAPI.Controllers
                 UpdatedDate = System.DateTime.Now,
                 StudentAccountId = oldPost.StudentAccountId,
                 EventId = oldPost.EventId,
-
             };
 
             await _service.Update(p);
