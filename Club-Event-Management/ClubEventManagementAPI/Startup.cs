@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,7 @@ namespace ClubEventManagementAPI
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -59,6 +61,18 @@ namespace ClubEventManagementAPI
 
             services.AddWebServices(Configuration);
             services.AddCoreServices(Configuration);
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: MyAllowSpecificOrigins,
+                                  builder =>
+                                  {
+                                      builder.WithOrigins(Configuration["clientUri"]);
+                                      builder.AllowAnyMethod();
+                                      //builder.WithHeaders(HeaderNames.ContentType, "application/json");
+                                      builder.WithHeaders(HeaderNames.Authorization);
+                                      builder.WithHeaders("content-type");
+                                  });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,6 +88,7 @@ namespace ClubEventManagementAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseCors(MyAllowSpecificOrigins);
             app.UseAuthentication();
 
             app.UseAuthorization();
