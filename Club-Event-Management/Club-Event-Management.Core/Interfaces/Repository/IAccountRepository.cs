@@ -10,9 +10,12 @@ namespace ApplicationCore.Interfaces.Repository
     {
         public Task AddNewAccount(UserIdentity user);
         public Task AddNewStudentAccount(UserIdentity user, StudentAccount student);
+        public Task<StudentAccount> GetStudentAccount(string email);      
+        public StudentAccount GetStudentAccountByEmail(string email);
+        public Task<StudentAccount> GetStudentAccountById(int id);
+        public Task<StudentAccount> GetStudentAccountBySchoolId(string id);
 
-        public Task<StudentAccount> GetStudentAccount(string email);
         public AdminAccount GetAdminAccount(string email);
-          
+
     }
 }

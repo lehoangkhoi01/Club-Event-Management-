@@ -31,5 +31,20 @@ namespace ApplicationCore.Services
         {
             return await _repository.GetStudentAccount(user.Email);
         }
+
+        public StudentAccount GetStudentAccountByEmail(string email)
+        {
+            return _repository.GetStudentAccountByEmail(email);
+        }
+
+        public async Task<StudentAccount> GetStudentAccountById(int id)
+        {
+            return await _repository.GetStudentAccountById(id);
+        }
+
+        public async Task<StudentAccount> GetStudentAccountBySchoolId(string id)
+        {
+            return await _repository.GetStudentAccountBySchoolId(id);
+        }
     }
 }

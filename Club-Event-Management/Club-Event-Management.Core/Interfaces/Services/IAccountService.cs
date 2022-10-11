@@ -11,5 +11,8 @@ namespace ApplicationCore.Interfaces.Services
         public Task Add(UserIdentity user);
         public Task<StudentAccount> GetStudentAccount(UserIdentity user);
         public AdminAccount GetAdminAccount(UserIdentity user);
+        public StudentAccount GetStudentAccountByEmail(string email);
+        public Task<StudentAccount> GetStudentAccountById(int id);
+        public Task<StudentAccount> GetStudentAccountBySchoolId(string id);
     }
 }
