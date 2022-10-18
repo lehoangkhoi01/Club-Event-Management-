@@ -17,22 +17,12 @@ namespace ApplicationCore
         public string Place { get; set; }
         public DateTime EventStartTime { get; set; }
         public DateTime EventEndTime { get; set; }
-        public int TotalFollow { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-
-        public List<ClubProfile> ClubProfiles { get; set; }
-
-        public int CreatedClubId { get; set; }
-        public string CreatedClub { get; set; }
-
-
-        [ForeignKey("EventTypeId")]
-        public int EventTypeId { get; set; }
-        public virtual EventType EventType { get; set; }
-
-        [ForeignKey("EventCategoryId")]
-        public int EventCategoryId { get; set; }
-        public virtual EventCategory EventCategory { get; set; }
+        public bool IsInternal { get; set; }
+        public EventStatus EventStatus { get; set; }
+        public EventCategory EventCategory { get; set; }
+        public List<EventActivity> EventActivities { get; set; }
+        public List<EventClubProfile> ClubProfilesLinks { get; set; }
     }
 }

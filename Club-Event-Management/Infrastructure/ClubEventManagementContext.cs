@@ -30,6 +30,15 @@ namespace Infrastructure
             }
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EventClubProfile>()
+                .HasKey(x => new { x.EventId, x.ClubProfileId });
+
+            modelBuilder.Entity<ClubProfileStudentAccount>()
+                .HasKey(x => new { x.StudentAccountId, x.ClubProfileId });
+        }
+
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserIdentity> Users { get; set; }
         public DbSet<AdminAccount> AdminAccounts { get; set; }
@@ -38,9 +47,9 @@ namespace Infrastructure
         public DbSet<ClubProfile> ClubProfiles { get; set; }
         public DbSet<EventActivity> EventActivities { get; set; }
         public DbSet<EventPost> EventPosts { get; set; }
-        public DbSet<PostReaction> PostReactions { get; set; }
         public DbSet<EventCategory> EventCategories { get; set; }
-        public DbSet<EventType> EventTypes { get; set; }
+        public DbSet<EventStatus> EventStatuses { get; set; }
+        public DbSet<EventClubProfile> EventClubProfiles { get; set; }
 
     }
 }

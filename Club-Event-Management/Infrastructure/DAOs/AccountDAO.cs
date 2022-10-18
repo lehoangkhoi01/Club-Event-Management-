@@ -51,7 +51,7 @@ namespace Infrastructure.DAOs
         public async Task<StudentAccount> GetStudentAccount(string email)
         {
             var dbContext = new ClubEventManagementContext();
-            var student = await dbContext.StudentAccounts.Include(u => u.ClubProfiles)
+            var student = await dbContext.StudentAccounts
                                                 .FirstOrDefaultAsync(u => u.UserIdentity.Email == email);
             return student;
         }

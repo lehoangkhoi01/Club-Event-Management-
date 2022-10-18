@@ -14,9 +14,9 @@ namespace ApplicationCore
         public int StudentAccountId { get; set; }
         public string FullName { get; set; }
         public string StudentId { get; set; }
-        public List<ClubProfile> ClubProfiles { get; set; }
 
-        public virtual UserIdentity UserIdentity { get; set; }
+        public List<ClubProfileStudentAccount> ClubLinks { get; set; }
+        public UserIdentity UserIdentity { get; set; }
 
     }
 }

@@ -19,7 +19,7 @@ namespace ApplicationCore
         public string SocialAddress { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-        public List<StudentAccount> StudentAccounts { get; set; }
-        public List<Event> Events { get; set; }
+        public List<ClubProfileStudentAccount> StudentAccountsLink { get; set; }
+        public List<EventClubProfile> EventsLink { get; set; }
     }
 }

@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace ApplicationCore
 {
-    public class EventType
+    public class EventStatus
     {
         [Key]
-        public int EventTypeId { get; set; }
-        public string EventTypeName { get; set; }
+        public int EventStatusId { get; set; }
+        public string EventStatusName { get; set; }
     }
 }
