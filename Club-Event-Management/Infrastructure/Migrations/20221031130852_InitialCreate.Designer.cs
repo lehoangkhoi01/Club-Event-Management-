@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ClubEventManagementContext))]
-    [Migration("20221017064046_init1")]
-    partial class init1
+    [Migration("20221031130852_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -63,9 +63,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("SocialAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentAccountId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
@@ -76,8 +73,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("ClubProfileId");
-
-                    b.HasIndex("StudentAccountId");
 
                     b.ToTable("ClubProfiles");
                 });
@@ -106,9 +101,6 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ClubProfileId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
@@ -142,8 +134,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClubProfileId");
-
                     b.HasIndex("EventCategoryId");
 
                     b.HasIndex("EventStatusId");
@@ -170,7 +160,7 @@ namespace Infrastructure.Migrations
                     b.Property<string>("EventActivityName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EventId")
+                    b.Property<int>("EventId")
                         .HasColumnType("int");
 
                     b.Property<string>("Location")
@@ -235,7 +225,7 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("EventId")
+                    b.Property<int>("EventId")
                         .HasColumnType("int");
 
                     b.Property<string>("Picture")
@@ -331,13 +321,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("UserIdentity");
                 });
 
-            modelBuilder.Entity("ApplicationCore.ClubProfile", b =>
-                {
-                    b.HasOne("ApplicationCore.StudentAccount", null)
-                        .WithMany("ClubProfiles")
-                        .HasForeignKey("StudentAccountId");
-                });
-
             modelBuilder.Entity("ApplicationCore.ClubProfileStudentAccount", b =>
                 {
                     b.HasOne("ApplicationCore.ClubProfile", "ClubProfile")
@@ -347,7 +330,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ApplicationCore.StudentAccount", "StudentAccount")
-                        .WithMany()
+                        .WithMany("ClubLinks")
                         .HasForeignKey("StudentAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -359,10 +342,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ApplicationCore.Event", b =>
                 {
-                    b.HasOne("ApplicationCore.ClubProfile", null)
-                        .WithMany("Events")
-                        .HasForeignKey("ClubProfileId");
-
                     b.HasOne("ApplicationCore.EventCategory", "EventCategory")
                         .WithMany("Events")
                         .HasForeignKey("EventCategoryId");
@@ -380,7 +359,9 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("ApplicationCore.Event", "Event")
                         .WithMany("EventActivities")
-                        .HasForeignKey("EventId");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Event");
                 });
@@ -388,7 +369,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("ApplicationCore.EventClubProfile", b =>
                 {
                     b.HasOne("ApplicationCore.ClubProfile", "ClubProfile")
-                        .WithMany()
+                        .WithMany("EventsLink")
                         .HasForeignKey("ClubProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -407,8 +388,10 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("ApplicationCore.EventPost", b =>
                 {
                     b.HasOne("ApplicationCore.Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventId");
+                        .WithMany("EventPosts")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Event");
                 });
@@ -435,7 +418,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ApplicationCore.ClubProfile", b =>
                 {
-                    b.Navigation("Events");
+                    b.Navigation("EventsLink");
 
                     b.Navigation("StudentAccountsLink");
                 });
@@ -445,6 +428,8 @@ namespace Infrastructure.Migrations
                     b.Navigation("ClubProfilesLinks");
 
                     b.Navigation("EventActivities");
+
+                    b.Navigation("EventPosts");
                 });
 
             modelBuilder.Entity("ApplicationCore.EventCategory", b =>
@@ -454,7 +439,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ApplicationCore.StudentAccount", b =>
                 {
-                    b.Navigation("ClubProfiles");
+                    b.Navigation("ClubLinks");
                 });
 #pragma warning restore 612, 618
         }

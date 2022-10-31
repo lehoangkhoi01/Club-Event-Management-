@@ -40,7 +40,7 @@ namespace Infrastructure
         }
 
         public DbSet<Role> Roles { get; set; }
-        public DbSet<UserIdentity> Users { get; set; }
+        public DbSet<UserIdentity> UserIdentities { get; set; }
         public DbSet<AdminAccount> AdminAccounts { get; set; }
         public DbSet<StudentAccount> StudentAccounts { get; set; }
         public DbSet<Event> Events { get; set; }

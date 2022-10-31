@@ -36,14 +36,14 @@ namespace Infrastructure.DAOs
         public async Task AddNew(UserIdentity user)
         {
             var dbContext = new ClubEventManagementContext();
-            await dbContext.Users.AddAsync(user);
+            await dbContext.UserIdentities.AddAsync(user);
             await dbContext.SaveChangesAsync();
         }
 
         public async Task AddNewStudentAccount(UserIdentity user, StudentAccount studentAccount)
         {
             var dbContext = new ClubEventManagementContext();
-            await dbContext.Users.AddAsync(user);
+            await dbContext.UserIdentities.AddAsync(user);
             await dbContext.StudentAccounts.AddAsync(studentAccount);
             await dbContext.SaveChangesAsync();
         }
