@@ -49,7 +49,8 @@ namespace Infrastructure
         public DbSet<EventPost> EventPosts { get; set; }
         public DbSet<EventCategory> EventCategories { get; set; }
         public DbSet<EventStatus> EventStatuses { get; set; }
-        public DbSet<EventClubProfile> EventClubProfiles { get; set; }
+        public DbSet<EventClubProfile> EventClubProfile { get; set; }
+        public DbSet<ClubProfileStudentAccount> ClubProfileStudentAccount { get; set; }
 
     }
 }

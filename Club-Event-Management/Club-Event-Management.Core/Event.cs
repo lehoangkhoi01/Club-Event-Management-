@@ -23,6 +23,7 @@ namespace ApplicationCore
         public EventStatus EventStatus { get; set; }
         public EventCategory EventCategory { get; set; }
         public List<EventActivity> EventActivities { get; set; }
+        public List<EventPost> EventPosts { get; set; }
         public List<EventClubProfile> ClubProfilesLinks { get; set; }
     }
 }
