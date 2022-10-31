@@ -1,9 +1,14 @@
 ﻿using ApplicationCore.Interfaces.Repository;
 using ApplicationCore.Models;
+using ApplicationCore.Services;
+using Infrastructure;
 using Infrastructure.Repository;
+using Infrastructure.Services.ClubProfileServices.Implementation;
+using Infrastructure.Services.EventPostServices.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -16,7 +21,8 @@ namespace ClubEventManagementAPI.Configuration
         {
             services.AddSingleton<IAccountRepository, AccountRepository>();
             services.AddSingleton<IAuthorizationRepository, AuthorizationRepository>();
-            services.AddSingleton<IPostRepository, PostRepository>();
+            services.AddDbContext<ClubEventManagementContext>(
+                options => options.UseSqlServer("name=ConnectionStrings:ClubEventManagement"));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ClubEventManagementAPI", Version = "v1" });

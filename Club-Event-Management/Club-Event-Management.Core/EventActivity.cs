@@ -18,5 +18,6 @@ namespace ApplicationCore
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public Event Event { get; set; }
+        public int EventId { get; set; }
     }
 }

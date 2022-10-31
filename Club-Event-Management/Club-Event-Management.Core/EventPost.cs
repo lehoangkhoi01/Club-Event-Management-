@@ -17,5 +17,6 @@ namespace ApplicationCore
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
         public virtual Event Event { get; set; }
+        public int EventId { get; set; }
     }
 }
