@@ -9,6 +9,7 @@ using Infrastructure.Services.EventPostServices.Implementation;
 using Infrastructure.Services.EventServices.Implementation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ClubEventManagementAPI.Helpers;
 
 namespace ClubEventManagementAPI.Configuration
 {

@@ -58,6 +58,7 @@ namespace ClubEventManagementAPI
                 {
                     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                     {
+
                         ValidateIssuer = true,
                         ValidateAudience = true,
                         ValidateLifetime = true,
@@ -70,7 +71,7 @@ namespace ClubEventManagementAPI
             services.AddDbContext<ClubEventManagementContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("ClubEventManagement"));
-            }, ServiceLifetime.Singleton);
+            }, ServiceLifetime.Transient);
 
             services.AddWebServices(Configuration);
             services.AddCoreServices(Configuration);

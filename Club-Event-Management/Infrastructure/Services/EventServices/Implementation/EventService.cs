@@ -217,5 +217,16 @@ namespace Infrastructure.Services.EventServices.Implementation
             _context.SaveChanges();
             return status.SetResult(eventToUpdate);
         }
+    
+        public int GetTotalEvents()
+        {
+            return _context.Events.Count();
+        }    
+
+        public int GetTotalPages(int pageSize)
+        {
+            return (int)Math.Ceiling(GetTotalEvents() / (double)pageSize);
+        }
+
     }
 }

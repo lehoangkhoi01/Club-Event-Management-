@@ -144,5 +144,18 @@ namespace ClubEventManagementAPI.Controllers
 
         }
 
+        [HttpGet("TotalEvents")]
+        [Authorize]
+        public IActionResult GetTotalEvents()
+        {
+            return Ok(_eventService.GetTotalEvents());
+        }
+
+        [HttpGet("PageCount")]
+        [Authorize]
+        public IActionResult GetTotalPages(int pageSize)
+        {
+            return Ok(_eventService.GetTotalPages(pageSize));
+        }
     }
 }

@@ -27,5 +27,6 @@ namespace Infrastructure.Services.EventServices
         public String ClubName { get; set; }
         public int ClubProfileId { get; set; }
         public bool IsOwner { get; set; }
+        public String Avatar { get; set; }
     }
 }

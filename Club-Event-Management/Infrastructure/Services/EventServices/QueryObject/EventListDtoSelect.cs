@@ -28,7 +28,8 @@ namespace Infrastructure.Services.EventServices.QueryObject
                     {
                         ClubName = link.ClubProfile.ClubName,
                         ClubProfileId = link.ClubProfileId,
-                        IsOwner = link.IsOwner
+                        IsOwner = link.IsOwner,
+                        Avatar = link.ClubProfile.Avatar
                     }).ToArray(),
                 });
         }

@@ -90,7 +90,7 @@ namespace Infrastructure.Services.AccountService.Implementation
 
         public StudentAccount GetStudentAccountFromEmail(string email)
         {
-            return _db.StudentAccounts.Find(email);
+            return _db.StudentAccounts.FirstOrDefault(s => s.UserIdentity.Email == email);
         }
 
 
