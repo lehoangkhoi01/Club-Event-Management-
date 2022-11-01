@@ -18,6 +18,7 @@ namespace Infrastructure.Services.EventServices.QueryObject
                     EventName = ev.EventName,
                     Description = ev.Description,
                     Place = ev.Place,
+                    Image = ev.Image,
                     EventStartTime = ev.EventStartTime.ToString(),
                     EventEndTime = ev.EventEndTime.ToString(),
                     CreatedDate = ev.CreatedDate.ToString(),
