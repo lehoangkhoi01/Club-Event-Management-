@@ -8,7 +8,7 @@ namespace Infrastructure.Services
 {
     public class PagingRequest
     {
-        public virtual int? PageIndex { get; set; } = 0;
+        public virtual int? PageIndex { get; set; } = 1;
         public virtual int? PageSize { get; set; } = 5;
 
         public PagingRequest() { }
