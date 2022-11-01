@@ -8,18 +8,21 @@ namespace Infrastructure.Services
 {
     public static class GenericPagingQuery
     {
-        public static PagingResult<T> Page<T>( this IQueryable<T> query, int pageNumZeroStart, int pageSize)
+        public static PagingResult<T> Page<T>( this IQueryable<T> query, int pageNumOneStart, int pageSize)
         {
-            if (pageSize < 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "pageSize cannot be zero.");
+            if (pageSize <= 0) throw new ArgumentOutOfRangeException(nameof(pageSize), "pageSize cannot be less than zero.");
 
-            if (pageNumZeroStart != 0)
+            var count = query.Count();
+
+            if (pageNumOneStart > 1)
                 query = query
-                .Skip(pageNumZeroStart * pageSize);
+                .Skip((pageNumOneStart-1) * pageSize);
+
 
             var totalPage = (int)Math.Ceiling(
-                (double)query.Count() / pageSize);
+                (double)count / pageSize);
             var values = query.Take(pageSize).ToList();
-            return new PagingResult<T>(values, pageNumZeroStart, totalPage, pageSize);
+            return new PagingResult<T>(values, pageNumOneStart, totalPage, pageSize);
         }
 
         public class PagingResult<T>

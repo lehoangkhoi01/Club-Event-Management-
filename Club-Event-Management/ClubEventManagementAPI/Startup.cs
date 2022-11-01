@@ -123,8 +123,9 @@ namespace ClubEventManagementAPI
             ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
             builder.EntitySet<EventPost>("EventPost");
             builder.EntitySet<EventActivity>("EventActivity");
-            builder.EntitySet<StudentAccount>("StudentAccount");
+            builder.EntitySet<StudentAccount>("StudentAccount").EntityType.Ignore(acc => acc.UserIdentity);
             builder.EntitySet<AdminAccount>("AdminAccount");
+            builder.EntitySet<AdminAccount>("AdminAccount").EntityType.Ignore(acc => acc.UserIdentity); ;
             return builder.GetEdmModel();
         }
     }
