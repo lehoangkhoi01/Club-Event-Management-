@@ -35,7 +35,7 @@ namespace Infrastructure.DAOs
         public async Task<UserIdentity> GetUserByEmail(string email)
         {
             var dbContext = new ClubEventManagementContext();
-            return await dbContext.Users.Include(u => u.Role)
+            return await dbContext.UserIdentities.Include(u => u.Role)
                 .FirstOrDefaultAsync(u => u.Email == email);
             
         }

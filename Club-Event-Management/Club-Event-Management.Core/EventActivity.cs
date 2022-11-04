@@ -17,9 +17,7 @@ namespace ApplicationCore
         public DateTime EndTime { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
-
-        [ForeignKey("EventId")]
+        public Event Event { get; set; }
         public int EventId { get; set; }
-        public virtual Event Event { get; set; }
     }
 }

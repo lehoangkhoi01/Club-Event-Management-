@@ -57,7 +57,7 @@ namespace ApplicationCore.Services
             var token = new JwtSecurityToken(_config["Jwt:Issuer"],
                 _config["Jwt:Audience"],
                 claims,
-                expires: DateTime.Now.AddMinutes(15),
+                expires: DateTime.Now.AddMinutes(3600),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -69,6 +69,9 @@ namespace ApplicationCore.Services
 
             if(user == null)
             {
+                string student = userLogin.Email.Split("@")[0];
+                string studentId = student.Substring(student.Length - 8).ToUpper();
+
                 // User's email is not existed -> create new one
                 UserIdentity newUserIdentity = new UserIdentity
                 {
@@ -79,12 +82,12 @@ namespace ApplicationCore.Services
                 StudentAccount newStudentAccount = new StudentAccount
                 {
                     FullName = userLogin.FullName,
+                    StudentId = studentId,
                     UserIdentity = newUserIdentity,
                 };
                 await _accountRepository.AddNewStudentAccount(newUserIdentity, newStudentAccount);
                 user = await _repo.GetIdentityUserByEmail(newUserIdentity.Email);
             }
-
 
             if (user.IsLocked)
             {

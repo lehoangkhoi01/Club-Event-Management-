@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using ApplicationCore.Interfaces.Services;
 using System.Threading.Tasks;
 using ApplicationCore.Models;
+using System;
+using Microsoft.AspNetCore.Http;
 
 namespace ClubEventManagementAPI.Controllers
 {
@@ -22,6 +24,8 @@ namespace ClubEventManagementAPI.Controllers
 
         [AllowAnonymous]
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login([FromBody] UserLogin userLogin)
         {
             var user = await _service.Login(userLogin);

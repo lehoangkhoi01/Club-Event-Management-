@@ -2,12 +2,12 @@
 
 namespace Infrastructure.Migrations
 {
-    public partial class AddFieldsForEventTable : Migration
+    public partial class AddImageFieldForEvent : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "CreatedClub",
+                name: "Image",
                 table: "Events",
                 type: "nvarchar(max)",
                 nullable: true);
@@ -16,7 +16,7 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CreatedClub",
+                name: "Image",
                 table: "Events");
         }
     }

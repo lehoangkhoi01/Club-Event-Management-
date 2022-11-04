@@ -12,5 +12,7 @@ namespace ApplicationCore
         [Key]
         public int EventCategoryId { get; set; }
         public string EventCategoryName { get; set; }
+
+        public ICollection<Event> Events { get; set; }
     }
 }

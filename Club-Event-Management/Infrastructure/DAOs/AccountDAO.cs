@@ -10,7 +10,6 @@ namespace Infrastructure.DAOs
 {
     public class AccountDAO
     {
-        private readonly ClubEventManagementContext _context;
         private static AccountDAO instance;
         private static readonly object instanceLock = new object();
 
@@ -37,14 +36,14 @@ namespace Infrastructure.DAOs
         public async Task AddNew(UserIdentity user)
         {
             var dbContext = new ClubEventManagementContext();
-            await dbContext.Users.AddAsync(user);
+            await dbContext.UserIdentities.AddAsync(user);
             await dbContext.SaveChangesAsync();
         }
 
         public async Task AddNewStudentAccount(UserIdentity user, StudentAccount studentAccount)
         {
             var dbContext = new ClubEventManagementContext();
-            await dbContext.Users.AddAsync(user);
+            await dbContext.UserIdentities.AddAsync(user);
             await dbContext.StudentAccounts.AddAsync(studentAccount);
             await dbContext.SaveChangesAsync();
         }
@@ -52,7 +51,7 @@ namespace Infrastructure.DAOs
         public async Task<StudentAccount> GetStudentAccount(string email)
         {
             var dbContext = new ClubEventManagementContext();
-            var student = await dbContext.StudentAccounts.Include(u => u.ClubProfiles)
+            var student = await dbContext.StudentAccounts
                                                 .FirstOrDefaultAsync(u => u.UserIdentity.Email == email);
             return student;
         }

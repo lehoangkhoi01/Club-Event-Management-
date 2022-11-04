@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ClubEventManagementContext))]
-    [Migration("20220920151601_InitialDbTables")]
-    partial class InitialDbTables
+    [Migration("20221031130852_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,11 +32,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserIdentityEmail")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserIdentityId")
-                        .HasColumnType("int");
 
                     b.HasKey("AdminAccountId");
 
@@ -81,6 +77,24 @@ namespace Infrastructure.Migrations
                     b.ToTable("ClubProfiles");
                 });
 
+            modelBuilder.Entity("ApplicationCore.ClubProfileStudentAccount", b =>
+                {
+                    b.Property<int>("StudentAccountId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClubProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("CanModify")
+                        .HasColumnType("bit");
+
+                    b.HasKey("StudentAccountId", "ClubProfileId");
+
+                    b.HasIndex("ClubProfileId");
+
+                    b.ToTable("ClubProfileStudentAccount");
+                });
+
             modelBuilder.Entity("ApplicationCore.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -88,16 +102,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CreatedClubId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EventCategoryId")
+                    b.Property<int?>("EventCategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EventEndTime")
@@ -109,14 +120,14 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("EventStartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("EventTypeId")
+                    b.Property<int?>("EventStatusId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Place")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TotalFollow")
-                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
@@ -125,7 +136,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("EventCategoryId");
 
-                    b.HasIndex("EventTypeId");
+                    b.HasIndex("EventStatusId");
 
                     b.ToTable("Events");
                 });
@@ -183,6 +194,24 @@ namespace Infrastructure.Migrations
                     b.ToTable("EventCategories");
                 });
 
+            modelBuilder.Entity("ApplicationCore.EventClubProfile", b =>
+                {
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClubProfileId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsOwner")
+                        .HasColumnType("bit");
+
+                    b.HasKey("EventId", "ClubProfileId");
+
+                    b.HasIndex("ClubProfileId");
+
+                    b.ToTable("EventClubProfile");
+                });
+
             modelBuilder.Entity("ApplicationCore.EventPost", b =>
                 {
                     b.Property<int>("EventPostId")
@@ -202,9 +231,6 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Picture")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StudentAccountId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime2");
 
@@ -212,50 +238,22 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.HasIndex("StudentAccountId");
-
                     b.ToTable("EventPosts");
                 });
 
-            modelBuilder.Entity("ApplicationCore.EventType", b =>
+            modelBuilder.Entity("ApplicationCore.EventStatus", b =>
                 {
-                    b.Property<int>("EventTypeId")
+                    b.Property<int>("EventStatusId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("EventTypeName")
+                    b.Property<string>("EventStatusName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("EventTypeId");
+                    b.HasKey("EventStatusId");
 
-                    b.ToTable("EventTypes");
-                });
-
-            modelBuilder.Entity("ApplicationCore.PostReaction", b =>
-                {
-                    b.Property<int>("PostReactionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EventPostId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsLike")
-                        .HasColumnType("bit");
-
-                    b.HasKey("PostReactionId");
-
-                    b.HasIndex("EventPostId");
-
-                    b.ToTable("PostReactions");
+                    b.ToTable("EventStatuses");
                 });
 
             modelBuilder.Entity("ApplicationCore.Role", b =>
@@ -283,12 +281,11 @@ namespace Infrastructure.Migrations
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserIdentityEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserIdentityId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserIdentityEmail")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("StudentAccountId");
 
@@ -315,73 +312,75 @@ namespace Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ClubProfileEvent", b =>
-                {
-                    b.Property<int>("ClubProfilesClubProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EventsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ClubProfilesClubProfileId", "EventsId");
-
-                    b.HasIndex("EventsId");
-
-                    b.ToTable("ClubProfileEvent");
-                });
-
-            modelBuilder.Entity("ClubProfileStudentAccount", b =>
-                {
-                    b.Property<int>("ClubProfilesClubProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentAccountsStudentAccountId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ClubProfilesClubProfileId", "StudentAccountsStudentAccountId");
-
-                    b.HasIndex("StudentAccountsStudentAccountId");
-
-                    b.ToTable("ClubProfileStudentAccount");
-                });
-
             modelBuilder.Entity("ApplicationCore.AdminAccount", b =>
                 {
                     b.HasOne("ApplicationCore.UserIdentity", "UserIdentity")
                         .WithMany()
-                        .HasForeignKey("UserIdentityEmail")
+                        .HasForeignKey("UserIdentityEmail");
+
+                    b.Navigation("UserIdentity");
+                });
+
+            modelBuilder.Entity("ApplicationCore.ClubProfileStudentAccount", b =>
+                {
+                    b.HasOne("ApplicationCore.ClubProfile", "ClubProfile")
+                        .WithMany("StudentAccountsLink")
+                        .HasForeignKey("ClubProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("UserIdentity");
+                    b.HasOne("ApplicationCore.StudentAccount", "StudentAccount")
+                        .WithMany("ClubLinks")
+                        .HasForeignKey("StudentAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClubProfile");
+
+                    b.Navigation("StudentAccount");
                 });
 
             modelBuilder.Entity("ApplicationCore.Event", b =>
                 {
                     b.HasOne("ApplicationCore.EventCategory", "EventCategory")
-                        .WithMany()
-                        .HasForeignKey("EventCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Events")
+                        .HasForeignKey("EventCategoryId");
 
-                    b.HasOne("ApplicationCore.EventType", "EventType")
+                    b.HasOne("ApplicationCore.EventStatus", "EventStatus")
                         .WithMany()
-                        .HasForeignKey("EventTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EventStatusId");
 
                     b.Navigation("EventCategory");
 
-                    b.Navigation("EventType");
+                    b.Navigation("EventStatus");
                 });
 
             modelBuilder.Entity("ApplicationCore.EventActivity", b =>
                 {
                     b.HasOne("ApplicationCore.Event", "Event")
-                        .WithMany()
+                        .WithMany("EventActivities")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
+            modelBuilder.Entity("ApplicationCore.EventClubProfile", b =>
+                {
+                    b.HasOne("ApplicationCore.ClubProfile", "ClubProfile")
+                        .WithMany("EventsLink")
+                        .HasForeignKey("ClubProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationCore.Event", "Event")
+                        .WithMany("ClubProfilesLinks")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClubProfile");
 
                     b.Navigation("Event");
                 });
@@ -389,40 +388,19 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("ApplicationCore.EventPost", b =>
                 {
                     b.HasOne("ApplicationCore.Event", "Event")
-                        .WithMany()
+                        .WithMany("EventPosts")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ApplicationCore.StudentAccount", "StudentAccount")
-                        .WithMany()
-                        .HasForeignKey("StudentAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Event");
-
-                    b.Navigation("StudentAccount");
-                });
-
-            modelBuilder.Entity("ApplicationCore.PostReaction", b =>
-                {
-                    b.HasOne("ApplicationCore.EventPost", "EventPost")
-                        .WithMany()
-                        .HasForeignKey("EventPostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("EventPost");
                 });
 
             modelBuilder.Entity("ApplicationCore.StudentAccount", b =>
                 {
                     b.HasOne("ApplicationCore.UserIdentity", "UserIdentity")
                         .WithMany()
-                        .HasForeignKey("UserIdentityEmail")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserIdentityEmail");
 
                     b.Navigation("UserIdentity");
                 });
@@ -438,34 +416,30 @@ namespace Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ClubProfileEvent", b =>
+            modelBuilder.Entity("ApplicationCore.ClubProfile", b =>
                 {
-                    b.HasOne("ApplicationCore.ClubProfile", null)
-                        .WithMany()
-                        .HasForeignKey("ClubProfilesClubProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("EventsLink");
 
-                    b.HasOne("ApplicationCore.Event", null)
-                        .WithMany()
-                        .HasForeignKey("EventsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("StudentAccountsLink");
                 });
 
-            modelBuilder.Entity("ClubProfileStudentAccount", b =>
+            modelBuilder.Entity("ApplicationCore.Event", b =>
                 {
-                    b.HasOne("ApplicationCore.ClubProfile", null)
-                        .WithMany()
-                        .HasForeignKey("ClubProfilesClubProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("ClubProfilesLinks");
 
-                    b.HasOne("ApplicationCore.StudentAccount", null)
-                        .WithMany()
-                        .HasForeignKey("StudentAccountsStudentAccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("EventActivities");
+
+                    b.Navigation("EventPosts");
+                });
+
+            modelBuilder.Entity("ApplicationCore.EventCategory", b =>
+                {
+                    b.Navigation("Events");
+                });
+
+            modelBuilder.Entity("ApplicationCore.StudentAccount", b =>
+                {
+                    b.Navigation("ClubLinks");
                 });
 #pragma warning restore 612, 618
         }

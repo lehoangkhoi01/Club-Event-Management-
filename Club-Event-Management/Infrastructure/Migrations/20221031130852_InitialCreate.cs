@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Migrations
 {
-    public partial class InitialDbTables : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -41,16 +41,16 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventTypes",
+                name: "EventStatuses",
                 columns: table => new
                 {
-                    EventTypeId = table.Column<int>(type: "int", nullable: false)
+                    EventStatusId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EventTypeName = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    EventStatusName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventTypes", x => x.EventTypeId);
+                    table.PrimaryKey("PK_EventStatuses", x => x.EventStatusId);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,12 +77,11 @@ namespace Infrastructure.Migrations
                     Place = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EventStartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EventEndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalFollow = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedClubId = table.Column<int>(type: "int", nullable: false),
-                    EventTypeId = table.Column<int>(type: "int", nullable: false),
-                    EventCategoryId = table.Column<int>(type: "int", nullable: false)
+                    IsInternal = table.Column<bool>(type: "bit", nullable: false),
+                    EventStatusId = table.Column<int>(type: "int", nullable: true),
+                    EventCategoryId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -92,13 +91,13 @@ namespace Infrastructure.Migrations
                         column: x => x.EventCategoryId,
                         principalTable: "EventCategories",
                         principalColumn: "EventCategoryId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Events_EventTypes_EventTypeId",
-                        column: x => x.EventTypeId,
-                        principalTable: "EventTypes",
-                        principalColumn: "EventTypeId",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "FK_Events_EventStatuses_EventStatusId",
+                        column: x => x.EventStatusId,
+                        principalTable: "EventStatuses",
+                        principalColumn: "EventStatusId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -117,30 +116,6 @@ namespace Infrastructure.Migrations
                         column: x => x.RoleId,
                         principalTable: "Roles",
                         principalColumn: "RoleId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClubProfileEvent",
-                columns: table => new
-                {
-                    ClubProfilesClubProfileId = table.Column<int>(type: "int", nullable: false),
-                    EventsId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClubProfileEvent", x => new { x.ClubProfilesClubProfileId, x.EventsId });
-                    table.ForeignKey(
-                        name: "FK_ClubProfileEvent_ClubProfiles_ClubProfilesClubProfileId",
-                        column: x => x.ClubProfilesClubProfileId,
-                        principalTable: "ClubProfiles",
-                        principalColumn: "ClubProfileId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ClubProfileEvent_Events_EventsId",
-                        column: x => x.EventsId,
-                        principalTable: "Events",
-                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -171,68 +146,27 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AdminAccounts",
+                name: "EventClubProfile",
                 columns: table => new
                 {
-                    AdminAccountId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserIdentityId = table.Column<int>(type: "int", nullable: false),
-                    UserIdentityEmail = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    ClubProfileId = table.Column<int>(type: "int", nullable: false),
+                    IsOwner = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AdminAccounts", x => x.AdminAccountId);
+                    table.PrimaryKey("PK_EventClubProfile", x => new { x.EventId, x.ClubProfileId });
                     table.ForeignKey(
-                        name: "FK_AdminAccounts_Users_UserIdentityEmail",
-                        column: x => x.UserIdentityEmail,
-                        principalTable: "Users",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StudentAccounts",
-                columns: table => new
-                {
-                    StudentAccountId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserIdentityId = table.Column<int>(type: "int", nullable: false),
-                    UserIdentityEmail = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StudentAccounts", x => x.StudentAccountId);
-                    table.ForeignKey(
-                        name: "FK_StudentAccounts_Users_UserIdentityEmail",
-                        column: x => x.UserIdentityEmail,
-                        principalTable: "Users",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClubProfileStudentAccount",
-                columns: table => new
-                {
-                    ClubProfilesClubProfileId = table.Column<int>(type: "int", nullable: false),
-                    StudentAccountsStudentAccountId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClubProfileStudentAccount", x => new { x.ClubProfilesClubProfileId, x.StudentAccountsStudentAccountId });
-                    table.ForeignKey(
-                        name: "FK_ClubProfileStudentAccount_ClubProfiles_ClubProfilesClubProfileId",
-                        column: x => x.ClubProfilesClubProfileId,
+                        name: "FK_EventClubProfile_ClubProfiles_ClubProfileId",
+                        column: x => x.ClubProfileId,
                         principalTable: "ClubProfiles",
                         principalColumn: "ClubProfileId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ClubProfileStudentAccount_StudentAccounts_StudentAccountsStudentAccountId",
-                        column: x => x.StudentAccountsStudentAccountId,
-                        principalTable: "StudentAccounts",
-                        principalColumn: "StudentAccountId",
+                        name: "FK_EventClubProfile_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -246,7 +180,6 @@ namespace Infrastructure.Migrations
                     Picture = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StudentAccountId = table.Column<int>(type: "int", nullable: false),
                     EventId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -258,33 +191,71 @@ namespace Infrastructure.Migrations
                         principalTable: "Events",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventPosts_StudentAccounts_StudentAccountId",
-                        column: x => x.StudentAccountId,
-                        principalTable: "StudentAccounts",
-                        principalColumn: "StudentAccountId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostReactions",
+                name: "AdminAccounts",
                 columns: table => new
                 {
-                    PostReactionId = table.Column<int>(type: "int", nullable: false)
+                    AdminAccountId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IsLike = table.Column<bool>(type: "bit", nullable: false),
-                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EventPostId = table.Column<int>(type: "int", nullable: false)
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserIdentityEmail = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostReactions", x => x.PostReactionId);
+                    table.PrimaryKey("PK_AdminAccounts", x => x.AdminAccountId);
                     table.ForeignKey(
-                        name: "FK_PostReactions_EventPosts_EventPostId",
-                        column: x => x.EventPostId,
-                        principalTable: "EventPosts",
-                        principalColumn: "EventPostId",
+                        name: "FK_AdminAccounts_Users_UserIdentityEmail",
+                        column: x => x.UserIdentityEmail,
+                        principalTable: "Users",
+                        principalColumn: "Email",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudentAccounts",
+                columns: table => new
+                {
+                    StudentAccountId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StudentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserIdentityEmail = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentAccounts", x => x.StudentAccountId);
+                    table.ForeignKey(
+                        name: "FK_StudentAccounts_Users_UserIdentityEmail",
+                        column: x => x.UserIdentityEmail,
+                        principalTable: "Users",
+                        principalColumn: "Email",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ClubProfileStudentAccount",
+                columns: table => new
+                {
+                    ClubProfileId = table.Column<int>(type: "int", nullable: false),
+                    StudentAccountId = table.Column<int>(type: "int", nullable: false),
+                    CanModify = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClubProfileStudentAccount", x => new { x.StudentAccountId, x.ClubProfileId });
+                    table.ForeignKey(
+                        name: "FK_ClubProfileStudentAccount_ClubProfiles_ClubProfileId",
+                        column: x => x.ClubProfileId,
+                        principalTable: "ClubProfiles",
+                        principalColumn: "ClubProfileId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ClubProfileStudentAccount_StudentAccounts_StudentAccountId",
+                        column: x => x.StudentAccountId,
+                        principalTable: "StudentAccounts",
+                        principalColumn: "StudentAccountId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -294,14 +265,9 @@ namespace Infrastructure.Migrations
                 column: "UserIdentityEmail");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClubProfileEvent_EventsId",
-                table: "ClubProfileEvent",
-                column: "EventsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ClubProfileStudentAccount_StudentAccountsStudentAccountId",
+                name: "IX_ClubProfileStudentAccount_ClubProfileId",
                 table: "ClubProfileStudentAccount",
-                column: "StudentAccountsStudentAccountId");
+                column: "ClubProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EventActivities_EventId",
@@ -309,14 +275,14 @@ namespace Infrastructure.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_EventClubProfile_ClubProfileId",
+                table: "EventClubProfile",
+                column: "ClubProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_EventPosts_EventId",
                 table: "EventPosts",
                 column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventPosts_StudentAccountId",
-                table: "EventPosts",
-                column: "StudentAccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Events_EventCategoryId",
@@ -324,14 +290,9 @@ namespace Infrastructure.Migrations
                 column: "EventCategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_EventTypeId",
+                name: "IX_Events_EventStatusId",
                 table: "Events",
-                column: "EventTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostReactions_EventPostId",
-                table: "PostReactions",
-                column: "EventPostId");
+                column: "EventStatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StudentAccounts_UserIdentityEmail",
@@ -350,37 +311,34 @@ namespace Infrastructure.Migrations
                 name: "AdminAccounts");
 
             migrationBuilder.DropTable(
-                name: "ClubProfileEvent");
-
-            migrationBuilder.DropTable(
                 name: "ClubProfileStudentAccount");
 
             migrationBuilder.DropTable(
                 name: "EventActivities");
 
             migrationBuilder.DropTable(
-                name: "PostReactions");
-
-            migrationBuilder.DropTable(
-                name: "ClubProfiles");
+                name: "EventClubProfile");
 
             migrationBuilder.DropTable(
                 name: "EventPosts");
 
             migrationBuilder.DropTable(
+                name: "StudentAccounts");
+
+            migrationBuilder.DropTable(
+                name: "ClubProfiles");
+
+            migrationBuilder.DropTable(
                 name: "Events");
 
             migrationBuilder.DropTable(
-                name: "StudentAccounts");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "EventCategories");
 
             migrationBuilder.DropTable(
-                name: "EventTypes");
-
-            migrationBuilder.DropTable(
-                name: "Users");
+                name: "EventStatuses");
 
             migrationBuilder.DropTable(
                 name: "Roles");
