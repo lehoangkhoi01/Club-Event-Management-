@@ -85,6 +85,11 @@ namespace Infrastructure.Services.EventServices.Implementation
             return resultEventDetail;
         }
 
+        public async Task<IEnumerable<EventCategory>> GetEventCategories()
+        {
+            return await _context.EventCategories.ToListAsync();
+        }
+
         public IStatusGeneric<Event> CreateEvent(CreateEventRequest createEventRequest, int owningClubProfileId)
         {
             var status = new StatusGenericHandler<Event>();

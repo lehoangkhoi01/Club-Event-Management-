@@ -107,6 +107,14 @@ namespace ClubEventManagementAPI.Controllers
             return Ok(result);
         }
 
+        [HttpPost("Category")]
+        [Authorize]
+        public IActionResult GetEventCategories()
+        {
+            var result = _eventService.GetEventCategories();
+            return Ok(result);
+        }
+
         [HttpPost]
         [Authorize]
         public IActionResult CreateEvent([FromBody] CreateEventRequest createEventRequest)

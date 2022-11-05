@@ -22,7 +22,7 @@ namespace ClubEventManagementAPI.Configuration
             services.AddSingleton<IAccountRepository, AccountRepository>();
             services.AddSingleton<IAuthorizationRepository, AuthorizationRepository>();
             services.AddDbContext<ClubEventManagementContext>(
-                options => options.UseSqlServer("name=ConnectionStrings:ClubEventManagement"));
+                options => options.UseSqlServer("Data Source=5CD1218GHG\\SQLEXPRESS;Initial Catalog=ClubEventManagement;Integrated Security=True"));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ClubEventManagementAPI", Version = "v1" });
