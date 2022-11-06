@@ -46,7 +46,8 @@ namespace ClubEventManagementAPI.Controllers
             var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
             if (_eventActivityService.CanModifyActivity(userContext.IsAdmin, userContext.OwningClubIds, activity.EventId))
             {
-                return Accepted(_eventActivityService.CreateEventActivity(activity));
+                var result = _eventActivityService.CreateEventActivity(activity);
+                return result != null ? Accepted(result) : BadRequest("EventStatus is not PUBLISHED or PAST");
             }
             else
             {

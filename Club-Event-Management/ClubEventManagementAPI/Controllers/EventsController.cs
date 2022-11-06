@@ -11,6 +11,9 @@ using System.Security.Claims;
 using Infrastructure.Services.ClubProfileServices.Implementation;
 using static Infrastructure.Services.GenericPagingQuery;
 using Infrastructure.Services.AccountService.Implementation;
+using Infrastructure.Services.FirebaseServices.NotificationService;
+using System.Threading.Tasks;
+using Infrastructure.Services;
 
 namespace ClubEventManagementAPI.Controllers
 {
@@ -21,11 +24,13 @@ namespace ClubEventManagementAPI.Controllers
         private readonly EventService _eventService;
 
         private readonly UserContextService _userContextService;
+        private readonly NotificationService _notificationService;
 
-        public EventsController(EventService eventService, UserContextService userContextService)
+        public EventsController(EventService eventService, UserContextService userContextService, NotificationService notificationService)
         {
             _eventService = eventService;
             _userContextService = userContextService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -97,6 +102,39 @@ namespace ClubEventManagementAPI.Controllers
             return Unauthorized();
         }
 
+        [HttpGet("{id}/follow")]
+        [Authorize(Roles ="Student")]
+        public async Task<IActionResult> FollowEventAsync(int id)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            var eventToFollow = _eventService.GetEvent(0, 0, id);
+            if (eventToFollow == null)
+                return NotFound();
+            if (eventToFollow.IsInternal && !eventToFollow.ClubInfos.Any(info => userContext.ClubIds.Contains(info.ClubProfileId)))
+                return Unauthorized();
+            if (eventToFollow.EventStatus != EventStatusEnum.PUBLISHED.ToString() || eventToFollow.EventStatus != EventStatusEnum.PAST.ToString())
+                return BadRequest();
+            await _notificationService.FollowEventAsync(userContext.StudentAccountId.Value, id);
+            return Ok();
+        }
+
+        [HttpGet("{id}/unfollow")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> UnfollowEventAsync(int id)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            await _notificationService.UnfollowEventAsync(userContext.StudentAccountId.Value, id);
+            return Ok();
+        }
+
+        [HttpGet("following")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> GetFollowEvents([FromQuery] PagingRequest pagingRequest)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            return Ok(await _eventService.GetFollowEvents(pagingRequest, userContext.StudentAccountId.Value, userContext.ClubIds));
+        }
+
 
         [HttpPost("search")]
         [Authorize]
@@ -138,7 +176,7 @@ namespace ClubEventManagementAPI.Controllers
         public IActionResult UpdateEvent([FromBody] UpdateEventRequest updateEventRequest, int id)
         {
             var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
-            if (!userContext.OwningClubIds.Contains(updateEventRequest.OwningClubProfileId))
+            if (!userContext.OwningClubIds.Contains(updateEventRequest.OwningClubProfileId) && !userContext.IsAdmin)
             {
                 return Unauthorized();
 

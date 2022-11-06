@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.EventPostServices.QueryObject;
+using Infrastructure.Services.EventServices;
 using StatusGeneric;
 using System;
 using System.Collections.Generic;
@@ -22,12 +23,15 @@ namespace Infrastructure.Services.EventPostServices.Implementation
         {
             if (isAdmin)
                 return _context.EventPosts;
-            var eventIds = _context.EventClubProfile.Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
+            var eventIds = _context.EventClubProfile.AsQueryable().Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
             return _context.EventPosts.BusinessFilter(eventIds);
         }
 
         public EventPost CreateEventPost(CreateEventPostRequest createEventPostRequest)
         {
+            var owningEvent = _context.Events.Find(createEventPostRequest.EventId);
+            if (owningEvent == null || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PUBLISHED.ToString() || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PAST.ToString())
+                return null;
             var newPost = new EventPost
             {
                 Content = createEventPostRequest.Content,

@@ -52,7 +52,7 @@ namespace Infrastructure.DAOs
         {
             var dbContext = new ClubEventManagementContext();
             var student = await dbContext.StudentAccounts
-                                                .FirstOrDefaultAsync(u => u.UserIdentity.Email == email);
+                                                .AsQueryable().FirstOrDefaultAsync(u => u.UserIdentity.Email == email);
             return student;
         }
 

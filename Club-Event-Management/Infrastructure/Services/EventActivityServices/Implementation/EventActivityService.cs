@@ -1,6 +1,7 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.EventActivityServices;
 using Infrastructure.Services.EventPostServices.QueryObject;
+using Infrastructure.Services.EventServices;
 using StatusGeneric;
 using System;
 using System.Collections.Generic;
@@ -23,12 +24,15 @@ namespace Infrastructure.Services.EventPostServices.Implementation
         {
             if (isAdmin)
                 return _context.EventActivities;
-            var eventIds = _context.EventClubProfile.Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
+            var eventIds = _context.EventClubProfile.AsQueryable().Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
             return _context.EventActivities.BusinessFilter(eventIds);
         }
 
         public EventActivity CreateEventActivity(CreateEventActivityRequest createEventActivityRequest)
         {
+            var owningEvent = _context.Events.Find(createEventActivityRequest.EventId);
+            if (owningEvent == null || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PUBLISHED.ToString() || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PAST.ToString())
+                return null;
             var newActivity = new EventActivity
             {
                 Content = createEventActivityRequest.Content,

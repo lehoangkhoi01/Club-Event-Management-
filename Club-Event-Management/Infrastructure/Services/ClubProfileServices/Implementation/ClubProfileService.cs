@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.ClubProfileServices.QueryObject;
+using Infrastructure.Services.FirebaseServices.NotificationService;
 using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 using System;
@@ -14,12 +15,23 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
     public class ClubProfileService
     {
         private readonly ClubEventManagementContext _db;
+        private readonly NotificationService _notificationService;
 
-        public ClubProfileService(ClubEventManagementContext db)
+        public ClubProfileService(ClubEventManagementContext db, NotificationService notificationService)
         {
             _db = db;
+            _notificationService = notificationService;
         }
 
+        public async Task<PagingResult<ClubProfileListDto>> GetFollowClubProfilesAsync(ClubProfileFilterPagingRequest clubProfileFilterPagingRequest, int studentId)
+        {
+            var clubIds = (await _notificationService.GetFollowClubIds(studentId)).ToList();
+            return _db.ClubProfiles.AsNoTracking()
+                .Where(club => clubIds.Contains(club.ClubProfileId.ToString()))
+                .OrderBy(club => club.ClubProfileId)
+                .MapClubProfileToDto(clubProfileFilterPagingRequest.EventSize.Value, clubProfileFilterPagingRequest.StudentProfileSize.Value)
+                .Page(clubProfileFilterPagingRequest.PageIndex.Value, clubProfileFilterPagingRequest.PageSize.Value);
+        }
         public PagingResult<ClubProfileListDto> GetClubProfiles(ClubProfileFilterPagingRequest clubProfileFilterPagingRequest)
         {
             return _db.ClubProfiles.AsNoTracking()
@@ -44,7 +56,7 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
 
             //check student inf
             var studentEmailsRequest = createClubProfileRequest.MemeberInforMap.Keys;
-            var studentProfileEmailMap = _db.StudentAccounts
+            var studentProfileEmailMap = _db.StudentAccounts.AsQueryable()
                 .Where(student => studentEmailsRequest.Contains(student.UserIdentity.Email))
                 .Select(acc => new { acc.StudentAccountId, acc.UserIdentity.Email })
                 .ToDictionary(tuple => tuple.Email, tuple => tuple.StudentAccountId);
@@ -88,7 +100,7 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
 
             //check student inf
             var studentProfileEmailsRequest = updateClubProfileRequest.UpdateMemeberRequestsMap.Keys;
-            var studentProfileEmailMap = _db.StudentAccounts
+            var studentProfileEmailMap = _db.StudentAccounts.AsQueryable()
                 .Where(student => studentProfileEmailsRequest.Contains(student.UserIdentity.Email))
                 .Select(acc => new { acc.StudentAccountId, acc.UserIdentity.Email })
                 .ToDictionary(tuple => tuple.Email, tuple => tuple.StudentAccountId);
@@ -96,9 +108,12 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
             {
                 return result.AddError("Some of StudentId does not exist", nameof(updateClubProfileRequest.UpdateMemeberRequestsMap));
             }
+            var emailAccountIdMap = new Dictionary<string, int>();
 
             //get old profile
-            var oldClubProfile = _db.ClubProfiles.Include(club => club.StudentAccountsLink).Where(club => club.ClubProfileId == clubProfileId).FirstOrDefault();
+            var oldClubProfile = _db.ClubProfiles.Include(club => club.StudentAccountsLink)
+                .ThenInclude(link => link.StudentAccount).ThenInclude(acc => acc.UserIdentity)
+                .Where(club => club.ClubProfileId == clubProfileId).FirstOrDefault();
             if(oldClubProfile == null)
             {
                 return result.AddError("ClubProfileId does not exist", nameof(clubProfileId));
@@ -128,7 +143,7 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
                 {
                     if (requestMap.GetValueOrDefault(email).Remove)
                     {
-                        var linkToRemove = _db.ClubProfileStudentAccount.Where(link => link.StudentAccountId == studentProfileEmailMap.GetValueOrDefault(email) && link.ClubProfileId == clubProfileId).FirstOrDefault();                       
+                        var linkToRemove = _db.ClubProfileStudentAccount.AsQueryable().Where(link => link.StudentAccountId == studentProfileEmailMap.GetValueOrDefault(email) && link.ClubProfileId == clubProfileId).FirstOrDefault();                       
                         _db.ClubProfileStudentAccount.Remove(linkToRemove);
                     }
                     else
@@ -146,7 +161,7 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
 
         public List<Tuple<int, bool>> GetClubLinkByStudentAccountId(int studentAccountId)
         {
-            return _db.ClubProfileStudentAccount.Where(link => link.StudentAccountId == studentAccountId).Select(link => Tuple.Create(link.ClubProfileId, link.CanModify)).ToList();
+            return _db.ClubProfileStudentAccount.AsQueryable().Where(link => link.StudentAccountId == studentAccountId).Select(link => Tuple.Create(link.ClubProfileId, link.CanModify)).ToList();
 
         }
     }

@@ -3,6 +3,7 @@ using ClubEventManagementAPI.Helpers;
 using Infrastructure;
 using Infrastructure.Services.AccountService;
 using Infrastructure.Services.AccountService.Implementation;
+using Infrastructure.Services.FirebaseServices.NotificationService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace ClubEventManagementAPI.Controllers
 {
@@ -18,13 +20,32 @@ namespace ClubEventManagementAPI.Controllers
         private readonly ClubEventManagementContext _db;
         private readonly AccountService _service;
         private readonly UserContextService _userContextService;
+        private readonly NotificationService _notiService;
 
 
-        public StudentAccountController(ClubEventManagementContext db, AccountService service, UserContextService userContextService)
+
+        public StudentAccountController(ClubEventManagementContext db, AccountService service, UserContextService userContextService, NotificationService notiService)
         {
             _db = db;
             _service = service;
             _userContextService = userContextService;
+            _notiService = notiService;
+        }
+
+        [HttpGet("FollowEvents")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> GetFollowEventIds()
+        {
+            var accountInfo = _userContextService.GetIdentity(HttpContext.User.Identity as ClaimsIdentity);
+            return Ok(await _notiService.GetFollowEventIds(accountInfo.StudentAccountId.Value));
+        }
+
+        [HttpGet("FollowClubs")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> GetFollowClubIds()
+        {
+            var accountInfo = _userContextService.GetIdentity(HttpContext.User.Identity as ClaimsIdentity);
+            return Ok(await _notiService.GetFollowClubIds(accountInfo.StudentAccountId.Value));
         }
 
         [HttpGet]

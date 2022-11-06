@@ -8,22 +8,40 @@ using Infrastructure.Services.EventServices.QueryObject;
 using ApplicationCore;
 using static Infrastructure.Services.GenericPagingQuery;
 using StatusGeneric;
+using Infrastructure.Services.FirebaseServices.NotificationService;
 
 namespace Infrastructure.Services.EventServices.Implementation
 {
     public class EventService
     {
         private readonly ClubEventManagementContext _context;
+        private readonly NotificationService _notificationService;
 
-        public EventService(ClubEventManagementContext context)
+        public EventService(ClubEventManagementContext context, NotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
+        //Get all events available for student in clubIds
         public List<int> GetEventIdsFromClubIds(List<int> clubIds)
         {
             return _context.EventClubProfile.AsNoTracking().Where(link => !link.Event.IsInternal
                 || clubIds.Contains(link.ClubProfileId)).Select(link => link.Event.Id).Distinct().ToList();
+        }
+
+        public async Task<PagingResult<EventListDto>> GetFollowEvents(PagingRequest pagingRequest, int studentId, List<int> clubIds)
+        {
+            var followEventIdsFuture = _notificationService.GetFollowEventIds(studentId);
+            var availableEventIds = GetEventIdsFromClubIds(clubIds);
+            var followEventIdsList = (await followEventIdsFuture).ToHashSet();
+            followEventIdsList.RemoveWhere(id => !availableEventIds.Contains(Int16.Parse(id)));
+            return _context.Events.AsNoTracking()
+                .Where(ev => followEventIdsList.Contains(ev.Id.ToString()) && (ev.EventStatus.EventStatusName.Equals(EventStatusEnum.PUBLISHED.ToString()) || ev.EventStatus.EventStatusName.Equals(EventStatusEnum.PAST.ToString())))
+                .OrderBy(ev => ev.Id)
+                .MapEventsToEventDtos()
+                .Page(pagingRequest.PageIndex.Value, pagingRequest.PageSize.Value);
+            
         }
 
         public PagingResult<EventListDto> GetDraftEvent(EventFilterPagingRequest filterPagingRequest, bool isAdmin, List<int> ownedClubIds)
@@ -87,7 +105,7 @@ namespace Infrastructure.Services.EventServices.Implementation
 
         public async Task<IEnumerable<EventCategory>> GetEventCategories()
         {
-            return await _context.EventCategories.ToListAsync();
+            return await _context.EventCategories.AsQueryable().ToListAsync();
         }
 
         public IStatusGeneric<Event> CreateEvent(CreateEventRequest createEventRequest, int owningClubProfileId)
@@ -95,14 +113,14 @@ namespace Infrastructure.Services.EventServices.Implementation
             var status = new StatusGenericHandler<Event>();
 
             //check category
-            var eventCategory = _context.EventCategories.Where(cat => cat.EventCategoryName == createEventRequest.EventCategory).FirstOrDefault();
+            var eventCategory = _context.EventCategories.AsQueryable().Where(cat => cat.EventCategoryName == createEventRequest.EventCategory).FirstOrDefault();
             if(eventCategory == null)
             {
                 return status.AddError("Event category is invalid", nameof(createEventRequest.EventCategory));
             }
 
             //check club profiles
-            var clubProfilesIds = _context.ClubProfiles.Where(club => createEventRequest.ClubProfileIds.Contains(club.ClubProfileId)).ToList();
+            var clubProfilesIds = _context.ClubProfiles.AsQueryable().Where(club => createEventRequest.ClubProfileIds.Contains(club.ClubProfileId)).ToList();
             if(clubProfilesIds.Count() != createEventRequest.ClubProfileIds.Count())
             {
                 return status.AddError("Club profile ids are invalid", nameof(createEventRequest.ClubProfileIds));
@@ -117,7 +135,7 @@ namespace Infrastructure.Services.EventServices.Implementation
             var newEvent = new Event()
             {
                 EventName = createEventRequest.EventName,
-                EventStatus = _context.EventStatuses.Where(status => status.EventStatusName == createEventRequest.EventStatus).First(),
+                EventStatus = _context.EventStatuses.AsQueryable().Where(status => status.EventStatusName == createEventRequest.EventStatus).First(),
                 CreatedDate = DateTime.Now,
                 Description = createEventRequest.Description,
                 EventCategory = eventCategory,
@@ -136,6 +154,22 @@ namespace Infrastructure.Services.EventServices.Implementation
 
             _context.Events.Add(newEvent);
             _context.SaveChanges();
+            if(newEvent.EventStatus.EventStatusName == EventStatusEnum.PUBLISHED.ToString())
+            {
+                //generate notification
+                newEvent.ClubProfilesLinks.ForEach(link =>
+                {
+                    var newNoti = new NotificationDto
+                    {
+                        ActionType = ActionType.CREATE.ToString(),
+                        ClubId = link.ClubProfileId,
+                        SubjectId = newEvent.Id,
+                        SubjectName = newEvent.EventName,
+                        SubjectType = SubjectType.EVENT.ToString()
+                    };
+                    _notificationService.PublishNotification(newNoti);
+                });
+            }
             return status.SetResult(newEvent);
 
 
@@ -143,7 +177,7 @@ namespace Infrastructure.Services.EventServices.Implementation
 
         public int GetOwningClubProfileId(int eventId)
         {
-            return _context.EventClubProfile.Where(link => link.IsOwner && link.EventId == eventId).Select(link => link.ClubProfileId).First();
+            return _context.EventClubProfile.AsQueryable().Where(link => link.IsOwner && link.EventId == eventId).Select(link => link.ClubProfileId).First();
         }
 
         public IStatusGeneric<Event> UpdateEvent(UpdateEventRequest updateEventRequest, int eventId, int owningClubProfileId)
@@ -183,7 +217,7 @@ namespace Infrastructure.Services.EventServices.Implementation
                 || currentClubProfileIds.Where(link => !updateEventRequest.ClubProfileIds.Contains(link.ClubProfileId)).Any()){
 
                 //check club profiles
-                var clubProfilesIds = _context.ClubProfiles.Select(clubProfile => clubProfile.ClubProfileId).Where(id => updateEventRequest.ClubProfileIds.Contains(id)).ToList();
+                var clubProfilesIds = _context.ClubProfiles.AsQueryable().Select(clubProfile => clubProfile.ClubProfileId).Where(id => updateEventRequest.ClubProfileIds.Contains(id)).ToList();
                 if (clubProfilesIds.Count != updateEventRequest.ClubProfileIds.Count)
                 {
                     return status.AddError("Club profile ids are invalid", nameof(updateEventRequest.ClubProfileIds));
@@ -205,12 +239,12 @@ namespace Infrastructure.Services.EventServices.Implementation
             eventToUpdate.Place = updateEventRequest.Place;
             eventToUpdate.EventStartTime = updateEventRequest.EventStartTime;
             eventToUpdate.EventEndTime = updateEventRequest.EventEndTime;
-            eventToUpdate.EventStatus = _context.EventStatuses.Where(status => status.EventStatusName == futureEventStatus).First();
+            eventToUpdate.EventStatus = _context.EventStatuses.AsQueryable().Where(status => status.EventStatusName == futureEventStatus).First();
 
             if (eventToUpdate.EventCategory.EventCategoryName != updateEventRequest.EventCategory)
             {
                 //check category
-                var newEventCategory = _context.EventCategories.Where(cat => cat.EventCategoryName == updateEventRequest.EventCategory).FirstOrDefault();
+                var newEventCategory = _context.EventCategories.AsQueryable().Where(cat => cat.EventCategoryName == updateEventRequest.EventCategory).FirstOrDefault();
                 if (newEventCategory == null)
                 {
                     return status.AddError("Event category is invalid", nameof(updateEventRequest.EventCategory));

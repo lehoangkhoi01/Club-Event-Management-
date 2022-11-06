@@ -1,10 +1,13 @@
 ﻿using ClubEventManagementAPI.Helpers;
 using Infrastructure;
+using Infrastructure.Services;
 using Infrastructure.Services.ClubProfileServices;
 using Infrastructure.Services.ClubProfileServices.Implementation;
+using Infrastructure.Services.FirebaseServices.NotificationService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace ClubEventManagementAPI.Controllers
 {
@@ -14,13 +17,15 @@ namespace ClubEventManagementAPI.Controllers
 { 
         private readonly ClubProfileService _service;
         private readonly UserContextService _userContextService;
+        private readonly NotificationService _notificationService;
 
 
-        public ClubProfileController(UserContextService userContextService, ClubProfileService service)
+        public ClubProfileController(UserContextService userContextService, ClubProfileService service, NotificationService notificationService)
         {
 
             _service = service;
             _userContextService = userContextService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -28,6 +33,50 @@ namespace ClubEventManagementAPI.Controllers
         public IActionResult GetAllClubProfiles([FromQuery] ClubProfileFilterPagingRequest request)
         {
             return Ok(_service.GetClubProfiles(request));
+        }
+
+        [HttpGet("follow")]
+        [Authorize(Roles ="Student")]
+        public IActionResult GetFollowClubs(int? eventSize, int? studentProfileSize, int? pageIndex, int? pageSize)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            var requestPaging = new ClubProfileFilterPagingRequest
+            {
+                EventSize = eventSize.GetValueOrDefault(0),
+                PageSize = pageSize.GetValueOrDefault(5),
+                StudentProfileSize = studentProfileSize.GetValueOrDefault(0),
+                PageIndex = pageIndex.GetValueOrDefault(0)
+            };
+            return Ok(_service.GetFollowClubProfilesAsync(requestPaging,userContext.StudentAccountId.Value));
+        }
+
+        [HttpGet("{id}/follow")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> FollowClubAsync(int id)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            var clubToFollow = _service.GetClubProfile(id);
+            if (clubToFollow == null)
+                return NotFound();
+            await _notificationService.FollowClubAsync(userContext.StudentAccountId.Value, id);
+            return Ok();
+        }
+
+        [HttpGet("{id}/unfollow")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> UnfollowClubAsync(int id)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            await _notificationService.UnfollowClubAsync(userContext.StudentAccountId.Value, id);
+            return Ok();
+        }
+
+        [HttpGet("following")]
+        [Authorize(Roles = "Student")]
+        public async Task<IActionResult> GetFollowClubs([FromQuery] ClubProfileFilterPagingRequest pagingRequest)
+        {
+            var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
+            return Ok(await _service.GetFollowClubProfilesAsync(pagingRequest, userContext.StudentAccountId.Value));
         }
 
         [HttpGet("{id}")]

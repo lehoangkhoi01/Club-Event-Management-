@@ -10,6 +10,7 @@ using Infrastructure.Services.EventServices.Implementation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ClubEventManagementAPI.Helpers;
+using Infrastructure.Services.FirebaseServices.NotificationService;
 
 namespace ClubEventManagementAPI.Configuration
 {
@@ -25,6 +26,7 @@ namespace ClubEventManagementAPI.Configuration
             services.AddScoped<Infrastructure.Services.AccountService.Implementation.AccountService>();
             services.AddScoped<EventService>();
             services.AddScoped<UserContextService>();
+            services.AddScoped<NotificationService>();
             //services.AddScoped(typeof(IPostService), typeof(PostService));
             services.AddAutoMapper(typeof(MappingProfile));
             return services;
