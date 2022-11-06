@@ -20,12 +20,11 @@ namespace Infrastructure.Services.ClubProfileServices
         public DateTime FoundationDate { get; set; }
         [Required]
         public string SocialAddress { get; set; }
-        public List<UpdateMemeberRequest> UpdateMemeberRequests { get; set; } = new List<UpdateMemeberRequest>();
+        public Dictionary<string, UpdateMemeberRequest> UpdateMemeberRequestsMap { get; set; } = new Dictionary<string, UpdateMemeberRequest>();
     }
 
     public class UpdateMemeberRequest
     {
-        public int StudentProfileId { get; set; }
         public bool CanModify { get; set; }
 
         public bool Remove { get; set; } = false;
