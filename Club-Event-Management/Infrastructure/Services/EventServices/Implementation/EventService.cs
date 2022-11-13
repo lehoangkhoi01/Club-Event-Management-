@@ -126,6 +126,7 @@ namespace Infrastructure.Services.EventServices.Implementation
                 IsInternal = createEventRequest.IsInternal,
                 UpdatedDate = DateTime.Now,
                 Place = createEventRequest.Place,
+                Image = createEventRequest.Images
             };
 
             var clubProfileLink = new List<EventClubProfile>();

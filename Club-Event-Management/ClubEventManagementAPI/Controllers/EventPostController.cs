@@ -38,7 +38,8 @@ namespace ClubEventManagementAPI.Controllers
         public IQueryable<EventPost> Get()
         {
             var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
-            return _eventPostService.GetEventPosts(userContext.IsAdmin, userContext.ClubIds);
+            var result = _eventPostService.GetEventPosts(userContext.IsAdmin, userContext.ClubIds);
+            return result;
         }
 
         [HttpPost]

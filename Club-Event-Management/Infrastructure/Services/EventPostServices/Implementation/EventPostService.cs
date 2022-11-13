@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.EventPostServices.QueryObject;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,8 @@ namespace Infrastructure.Services.EventPostServices.Implementation
         {
             if (isAdmin)
                 return _context.EventPosts;
-            var eventIds = _context.EventClubProfile.Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
+            var eventIds = _context.EventClubProfile
+                .Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
             return _context.EventPosts.BusinessFilter(eventIds);
         }
 
