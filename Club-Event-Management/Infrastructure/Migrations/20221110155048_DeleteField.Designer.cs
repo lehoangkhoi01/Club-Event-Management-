@@ -4,14 +4,16 @@ using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ClubEventManagementContext))]
-    partial class ClubEventManagementContextModelSnapshot : ModelSnapshot
+    [Migration("20221110155048_DeleteField")]
+    partial class DeleteField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,9 +222,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("ClubProfileId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
@@ -239,8 +238,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("EventPostId");
-
-                    b.HasIndex("ClubProfileId");
 
                     b.HasIndex("EventId");
 
@@ -393,17 +390,11 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("ApplicationCore.EventPost", b =>
                 {
-                    b.HasOne("ApplicationCore.ClubProfile", "ClubProfile")
-                        .WithMany()
-                        .HasForeignKey("ClubProfileId");
-
                     b.HasOne("ApplicationCore.Event", "Event")
                         .WithMany("EventPosts")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ClubProfile");
 
                     b.Navigation("Event");
                 });

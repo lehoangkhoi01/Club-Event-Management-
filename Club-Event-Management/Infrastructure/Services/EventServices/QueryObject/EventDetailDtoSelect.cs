@@ -16,6 +16,7 @@ namespace Infrastructure.Services.EventServices.QueryObject
                 Id = ev.Id,
                 EventName = ev.EventName,
                 Description = ev.Description,
+                Image = ev.Image,
                 Place = ev.Place,
                 EventStartTime = ev.EventStartTime.ToString(),
                 EventEndTime = ev.EventEndTime.ToString(),
@@ -42,7 +43,8 @@ namespace Infrastructure.Services.EventServices.QueryObject
                 {
                     ClubName = link.ClubProfile.ClubName,
                     ClubProfileId = link.ClubProfileId,
-                    IsOwner = link.IsOwner
+                    IsOwner = link.IsOwner,
+                    Avatar = link.ClubProfile.Avatar
                 }).ToList(),
                 PagingStatus = new PagingStatus
                 {

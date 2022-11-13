@@ -34,6 +34,18 @@ namespace ClubEventManagementAPI.Controllers
             return _db.StudentAccounts;
         }
 
+        [HttpGet("api/Student")]
+        public IActionResult GetStudentAccountByEmail(string email)
+        {
+            StudentAccount student = _service.GetStudentAccountFromEmail(email);
+            if (student != null)
+            {
+                return Ok(student);
+            }
+            
+            return NotFound();
+        }
+
         [Authorize(Roles = "Student")]
         public IActionResult Post(CreateStudentAccountRequest request)
         {

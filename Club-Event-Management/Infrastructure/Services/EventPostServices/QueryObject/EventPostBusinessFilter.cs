@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.EventServices;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

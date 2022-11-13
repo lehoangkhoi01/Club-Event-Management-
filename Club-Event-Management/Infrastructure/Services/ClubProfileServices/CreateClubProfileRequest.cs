@@ -20,12 +20,6 @@ namespace Infrastructure.Services.ClubProfileServices
         public DateTime FoundationDate { get; set; }
         [Required]
         public string SocialAddress { get; set; }
-        public List<CreateClubProfileRequest_MemeberInfor> MemeberInfors { get; set; } = new List<CreateClubProfileRequest_MemeberInfor>();
-    }
-
-    public class CreateClubProfileRequest_MemeberInfor
-    {
-        public int StudentAccountId { get; set; }
-        public bool CanModify { get; set; } = false;
+        public Dictionary<string , bool> MemeberInforMap { get; set; } = new Dictionary<string, bool>();
     }
 }

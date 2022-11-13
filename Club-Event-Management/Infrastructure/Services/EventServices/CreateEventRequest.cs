@@ -23,6 +23,7 @@ namespace Infrastructure.Services.EventServices
         [Required]
         public string EventStatus { get; set; }
         public string EventCategory { get; set; }
+        public string Images { get; set; }
         public int OwningClubProfileId { get; set; }
         public List<int> ClubProfileIds { get; set; }
 
@@ -42,12 +43,12 @@ namespace Infrastructure.Services.EventServices
                     new[] { nameof(EventStatus) });
             }
 
-            if (ClubProfileIds.Contains(OwningClubProfileId))
-            {
-                yield return new ValidationResult(
-                    $"Owning club profile id should not be in Club profile ids",
-                    new[] { nameof(OwningClubProfileId) });
-            }
+            //if (ClubProfileIds.Contains(OwningClubProfileId))
+            //{
+            //    yield return new ValidationResult(
+            //        $"Owning club profile id should not be in Club profile ids",
+            //        new[] { nameof(OwningClubProfileId) });
+            //}
         }
     }
 }

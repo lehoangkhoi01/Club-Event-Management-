@@ -43,11 +43,14 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
             var result = new StatusGenericHandler<ClubProfile>();
 
             //check student inf
-            var studentProfileIds = createClubProfileRequest.MemeberInfors.Select(inf => inf.StudentAccountId).ToList();
-            var studentProfileCount = _db.StudentAccounts.Select(acc => acc.StudentAccountId).Where(id => studentProfileIds.Contains(id)).Count();
-            if(studentProfileCount != studentProfileIds.Count)
+            var studentEmailsRequest = createClubProfileRequest.MemeberInforMap.Keys;
+            var studentProfileEmailMap = _db.StudentAccounts
+                .Where(student => studentEmailsRequest.Contains(student.UserIdentity.Email))
+                .Select(acc => new { acc.StudentAccountId, acc.UserIdentity.Email })
+                .ToDictionary(tuple => tuple.Email, tuple => tuple.StudentAccountId);
+            if(studentEmailsRequest.Count != studentProfileEmailMap.Count)
             {
-                return result.AddError("Some of StudentId does not exist", nameof(createClubProfileRequest.MemeberInfors));
+                return result.AddError("Some of student's email does not exist", nameof(createClubProfileRequest.MemeberInforMap));
             }
             var student_clubLinks = new List<ClubProfileStudentAccount>();
 
@@ -64,12 +67,13 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
                 UpdatedDate = DateTime.Now,
             };
 
-            createClubProfileRequest.MemeberInfors.ForEach(info => student_clubLinks.Add(new ClubProfileStudentAccount
+            var memberInfoMap = createClubProfileRequest.MemeberInforMap;
+            memberInfoMap.Keys.ToList().ForEach(email => student_clubLinks.Add(new ClubProfileStudentAccount
             {
-                CanModify = info.CanModify,
+                CanModify = memberInfoMap.GetValueOrDefault(email),
                 ClubProfile = newClubProfile,
-                StudentAccountId = info.StudentAccountId
-            }));
+                StudentAccountId = studentProfileEmailMap.GetValueOrDefault(email)
+            })); ;
             newClubProfile.StudentAccountsLink = student_clubLinks;
 
             _db.ClubProfiles.Add(newClubProfile);
@@ -83,11 +87,14 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
             var result = new StatusGenericHandler<ClubProfile>();
 
             //check student inf
-            var studentProfileIds = updateClubProfileRequest.UpdateMemeberRequests.Select(req => req.StudentProfileId).ToList();
-            var studentProfileCount = _db.StudentAccounts.Select(acc => acc.StudentAccountId).Where(id => studentProfileIds.Contains(id)).Count();
-            if (studentProfileCount != studentProfileIds.Count)
+            var studentProfileEmailsRequest = updateClubProfileRequest.UpdateMemeberRequestsMap.Keys;
+            var studentProfileEmailMap = _db.StudentAccounts
+                .Where(student => studentProfileEmailsRequest.Contains(student.UserIdentity.Email))
+                .Select(acc => new { acc.StudentAccountId, acc.UserIdentity.Email })
+                .ToDictionary(tuple => tuple.Email, tuple => tuple.StudentAccountId);
+            if (studentProfileEmailMap.Count != studentProfileEmailsRequest.Count)
             {
-                return result.AddError("Some of StudentId does not exist", nameof(updateClubProfileRequest.UpdateMemeberRequests));
+                return result.AddError("Some of StudentId does not exist", nameof(updateClubProfileRequest.UpdateMemeberRequestsMap));
             }
 
             //get old profile
@@ -107,24 +114,26 @@ namespace Infrastructure.Services.ClubProfileServices.Implementation
             oldClubProfile.UpdatedDate = DateTime.Now;
 
             var oldClubStudentLinks = oldClubProfile.StudentAccountsLink;
-            updateClubProfileRequest.UpdateMemeberRequests.ForEach(request =>
+            var requestMap = updateClubProfileRequest.UpdateMemeberRequestsMap;
+            requestMap.Keys.ToList().ForEach(email =>
             {
                 //Add new link
-                if (!oldClubStudentLinks.Any(link => link.StudentAccountId == request.StudentProfileId))
+                if (!oldClubStudentLinks.Any(link => link.StudentAccountId == studentProfileEmailMap.GetValueOrDefault(email))
+                    && !requestMap.GetValueOrDefault(email).Remove)
                 {
-                    oldClubStudentLinks.Add(new ClubProfileStudentAccount { CanModify = request.CanModify, StudentAccountId = request.StudentProfileId });
+                    oldClubStudentLinks.Add(new ClubProfileStudentAccount { CanModify = requestMap.GetValueOrDefault(email).CanModify, StudentAccountId = studentProfileEmailMap.GetValueOrDefault(email) });
                 }
                 //Update or Delete link
                 else
                 {
-                    if (request.Remove)
+                    if (requestMap.GetValueOrDefault(email).Remove)
                     {
-                        var linkToRemove = _db.ClubProfileStudentAccount.Where(link => link.StudentAccountId == request.StudentProfileId && link.ClubProfileId == clubProfileId).FirstOrDefault();                       
+                        var linkToRemove = _db.ClubProfileStudentAccount.Where(link => link.StudentAccountId == studentProfileEmailMap.GetValueOrDefault(email) && link.ClubProfileId == clubProfileId).FirstOrDefault();                       
                         _db.ClubProfileStudentAccount.Remove(linkToRemove);
                     }
                     else
                     {
-                        oldClubStudentLinks.First(link => link.StudentAccountId == request.StudentProfileId).CanModify = request.CanModify;
+                        oldClubStudentLinks.First(link => link.StudentAccountId == studentProfileEmailMap.GetValueOrDefault(email)).CanModify = requestMap.GetValueOrDefault(email).CanModify;
                     }
                 }
             });
