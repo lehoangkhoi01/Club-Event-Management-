@@ -19,6 +19,7 @@ namespace ApplicationCore
         public virtual Event Event { get; set; }
         public int EventId { get; set; }
         public virtual ClubProfile ClubProfile { get; set; }
+        public int ClubProfileId { get; set; }
 
     }
 }

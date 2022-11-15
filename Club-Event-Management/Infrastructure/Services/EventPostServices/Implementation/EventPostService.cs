@@ -24,7 +24,9 @@ namespace Infrastructure.Services.EventPostServices.Implementation
             if (isAdmin)
                 return _context.EventPosts;
             var eventIds = _context.EventClubProfile
-                .Where(link => clubIds.Contains(link.ClubProfileId)).Select(link => link.EventId).Distinct().ToList();
+                .Where(link => clubIds.Contains(link.ClubProfileId))
+                .Select(link => link.EventId)
+                .Distinct().ToList();
             return _context.EventPosts.BusinessFilter(eventIds);
         }
 
@@ -36,7 +38,8 @@ namespace Infrastructure.Services.EventPostServices.Implementation
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
                 Picture = createEventPostRequest.Picture,
-                EventId = createEventPostRequest.EventId
+                EventId = createEventPostRequest.EventId,
+                ClubProfileId = createEventPostRequest.ClubProfileId
             };
             _context.Add(newPost);
             _context.SaveChanges();
