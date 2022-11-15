@@ -44,7 +44,7 @@ namespace ClubEventManagementAPI.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult Post(CreateEventPostRequest post)
+        public IActionResult Post([FromBody]CreateEventPostRequest post)
         {
             if (!ModelState.IsValid)
             {

@@ -93,6 +93,11 @@ namespace Infrastructure.Services.AccountService.Implementation
             return _db.StudentAccounts.FirstOrDefault(s => s.UserIdentity.Email == email);
         }
 
+        public IEnumerable<ClubProfileStudentAccount> GetClubProfileStudentAccountsByStudentId(int id)
+        {
+            return _db.ClubProfileStudentAccount.Where(s => s.StudentAccountId == id && s.CanModify == true);
+        }
+
 
     }
 }
