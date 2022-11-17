@@ -95,7 +95,7 @@ namespace Infrastructure.Services.AccountService.Implementation
 
         public IEnumerable<ClubProfileStudentAccount> GetClubProfileStudentAccountsByStudentId(int id)
         {
-            return _db.ClubProfileStudentAccount.Where(s => s.StudentAccountId == id && s.CanModify == true);
+            return _db.ClubProfileStudentAccount.AsQueryable().Where(s => s.StudentAccountId == id && s.CanModify == true);
         }
 
 

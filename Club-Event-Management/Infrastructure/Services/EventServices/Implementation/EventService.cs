@@ -255,6 +255,20 @@ namespace Infrastructure.Services.EventServices.Implementation
             }
 
             _context.SaveChanges();
+            if (eventToUpdate.EventStatus.EventStatusName == EventStatusEnum.PUBLISHED.ToString())
+            {
+                //generate notification
+                var newNoti = new NotificationDto
+                {
+                    ActionType = ActionType.UPDATE.ToString(),
+                    EventId = eventToUpdate.Id,
+                    Eventname = eventToUpdate.EventName,
+                    SubjectId = eventToUpdate.Id,
+                    SubjectName = eventToUpdate.EventName,
+                    SubjectType = SubjectType.EVENT.ToString()
+                };
+                _notificationService.PublishNotification(newNoti);
+            }
             return status.SetResult(eventToUpdate);
         }
     

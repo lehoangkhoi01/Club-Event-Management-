@@ -1,6 +1,8 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.EventPostServices.QueryObject;
 using Infrastructure.Services.EventServices;
+using Infrastructure.Services.FirebaseServices.NotificationService;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 using System;
 using System.Collections.Generic;
@@ -13,10 +15,12 @@ namespace Infrastructure.Services.EventPostServices.Implementation
     public class EventPostService
     {
         private readonly ClubEventManagementContext _context;
+        private readonly NotificationService _notificationService;
 
-        public EventPostService(ClubEventManagementContext context)
+        public EventPostService(ClubEventManagementContext context, NotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public IQueryable<EventPost> GetEventPosts(bool isAdmin, List<int> clubIds)
@@ -29,8 +33,8 @@ namespace Infrastructure.Services.EventPostServices.Implementation
 
         public EventPost CreateEventPost(CreateEventPostRequest createEventPostRequest)
         {
-            var owningEvent = _context.Events.Find(createEventPostRequest.EventId);
-            if (owningEvent == null || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PUBLISHED.ToString() || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PAST.ToString())
+            var owningEvent = _context.Events.Include(ev => ev.EventStatus).AsQueryable().Where(ev => ev.Id == createEventPostRequest.EventId).FirstOrDefault();
+            if (owningEvent == null || (owningEvent.EventStatus.EventStatusName != EventStatusEnum.PUBLISHED.ToString() && owningEvent.EventStatus.EventStatusName != EventStatusEnum.PAST.ToString()))
                 return null;
             var newPost = new EventPost
             {
@@ -43,6 +47,16 @@ namespace Infrastructure.Services.EventPostServices.Implementation
             };
             _context.Add(newPost);
             _context.SaveChanges();
+            //generate notification
+            var notification = new NotificationDto
+            {
+                ActionType = ActionType.CREATE.ToString(),
+                EventId = owningEvent.Id,
+                Eventname = owningEvent.EventName,
+                SubjectId = newPost.EventPostId,
+                SubjectType = SubjectType.POST.ToString()
+            };
+            _notificationService.PublishNotification(notification);
             return newPost;
 
         }

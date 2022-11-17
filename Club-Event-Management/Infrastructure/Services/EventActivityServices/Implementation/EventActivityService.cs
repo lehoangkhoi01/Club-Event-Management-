@@ -2,6 +2,8 @@
 using Infrastructure.Services.EventActivityServices;
 using Infrastructure.Services.EventPostServices.QueryObject;
 using Infrastructure.Services.EventServices;
+using Infrastructure.Services.FirebaseServices.NotificationService;
+using Microsoft.EntityFrameworkCore;
 using StatusGeneric;
 using System;
 using System.Collections.Generic;
@@ -13,11 +15,14 @@ namespace Infrastructure.Services.EventPostServices.Implementation
 {
     public class EventActivityService
     {
-        private readonly ClubEventManagementContext _context;
+        private readonly ClubEventManagementContext _context; 
+        private readonly NotificationService _notificationService;
 
-        public EventActivityService(ClubEventManagementContext context)
+
+        public EventActivityService(ClubEventManagementContext context, NotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
         public IQueryable<EventActivity> GetEventActivities(bool isAdmin, List<int> clubIds)
@@ -30,8 +35,8 @@ namespace Infrastructure.Services.EventPostServices.Implementation
 
         public EventActivity CreateEventActivity(CreateEventActivityRequest createEventActivityRequest)
         {
-            var owningEvent = _context.Events.Find(createEventActivityRequest.EventId);
-            if (owningEvent == null || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PUBLISHED.ToString() || owningEvent.EventStatus.EventStatusName != EventStatusEnum.PAST.ToString())
+            var owningEvent = _context.Events.Include(ev => ev.EventStatus).AsQueryable().Where(ev => ev.Id == createEventActivityRequest.EventId).FirstOrDefault();
+            if (owningEvent == null ||( owningEvent.EventStatus.EventStatusName != EventStatusEnum.PUBLISHED.ToString() && owningEvent.EventStatus.EventStatusName != EventStatusEnum.PAST.ToString()))
                 return null;
             var newActivity = new EventActivity
             {
@@ -45,6 +50,16 @@ namespace Infrastructure.Services.EventPostServices.Implementation
                 EventActivityName = createEventActivityRequest.EventActivityName
             };
             _context.Add(newActivity);
+            var noti = new NotificationDto
+            {
+                ActionType = ActionType.CREATE.ToString(),
+                EventId = createEventActivityRequest.EventId,
+                Eventname = owningEvent.EventName,
+                SubjectId = newActivity.EventActivityId,
+                SubjectName = newActivity.EventActivityName,
+                SubjectType = SubjectType.ACTIVITY.ToString()
+            };
+            _notificationService.PublishNotification(noti);
             _context.SaveChanges();
             return newActivity;
 
@@ -54,7 +69,7 @@ namespace Infrastructure.Services.EventPostServices.Implementation
         {
             var result = new StatusGenericHandler<EventActivity>();
 
-            var oldActivity= _context.EventActivities.Find(activityId);
+            var oldActivity = _context.EventActivities.Find(activityId);
             if (oldActivity == null)
             {
                 return result.AddError("Could not find activity", nameof(activityId));
@@ -71,7 +86,7 @@ namespace Infrastructure.Services.EventPostServices.Implementation
             oldActivity.Location = updateEventActivityRequest.Location;
             oldActivity.UpdatedDate = DateTime.Now;
 
-           _context.SaveChanges();
+            _context.SaveChanges();
             return result.SetResult(oldActivity);
 
         }
