@@ -12,6 +12,7 @@ namespace Infrastructure.Services.EventServices
         public string EventName { get; set; }
         public string Description { get; set; }
         public string Place { get; set; }
+        public string Image { get; set; }
         public string EventStartTime { get; set; }
         public string EventEndTime { get; set; }
         public bool IsInternal { get; set; }

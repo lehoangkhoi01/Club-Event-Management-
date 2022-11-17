@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -53,6 +54,31 @@ namespace ClubEventManagementAPI.Controllers
         public IQueryable<StudentAccount> Get()
         {
             return _db.StudentAccounts;
+        }
+
+        [HttpGet("api/Student")]
+        public IActionResult GetStudentAccountByEmail(string email)
+        {
+            StudentAccount student = _service.GetStudentAccountFromEmail(email);
+            if (student != null)
+            {
+                return Ok(student);
+            }
+            
+            return NotFound();
+        }
+
+        [HttpGet("api/Student/StudentClubProfile")]
+        public IActionResult GetClubByStudentAccountId(int studentAccountId)
+        {
+            List<ClubProfileStudentAccount> clubs = _service.GetClubProfileStudentAccountsByStudentId(studentAccountId)
+                                                            .ToList();
+            if(clubs != null)
+            {
+                return Ok(clubs);
+            }
+
+            return NotFound();
         }
 
         [Authorize(Roles = "Student")]

@@ -1,5 +1,6 @@
 ﻿using ApplicationCore;
 using Infrastructure.Services.EventServices;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,8 @@ namespace Infrastructure.Services.EventPostServices.QueryObject
         {
             return posts.Where(p => eventIds.Contains(p.Event.Id) || !p.Event.IsInternal &&
                             p.Event.EventStatus.EventStatusName != EventStatusEnum.DELETED.ToString() &&
-                            p.Event.EventStatus.EventStatusName != EventStatusEnum.DRAFT.ToString());
+                            p.Event.EventStatus.EventStatusName != EventStatusEnum.DRAFT.ToString())
+                        .OrderByDescending(p => p.EventPostId);
         }
     }
 }

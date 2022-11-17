@@ -14,5 +14,6 @@ namespace Infrastructure.Services.EventPostServices
         public string Content { get; set; }
         public string Picture { get; set; }
         public int EventId { get; set; }
+        public int ClubProfileId { get; set; }
     }
 }

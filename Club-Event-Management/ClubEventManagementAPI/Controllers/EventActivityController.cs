@@ -36,7 +36,7 @@ namespace ClubEventManagementAPI.Controllers
         }
 
         [Authorize]
-        public IActionResult Post(CreateEventActivityRequest activity)
+        public IActionResult Post([FromBody]CreateEventActivityRequest activity)
         {
             if (!ModelState.IsValid)
             {

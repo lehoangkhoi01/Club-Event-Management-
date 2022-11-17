@@ -38,7 +38,8 @@ namespace Infrastructure.Services.EventPostServices.Implementation
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now,
                 Picture = createEventPostRequest.Picture,
-                EventId = createEventPostRequest.EventId
+                EventId = createEventPostRequest.EventId,
+                ClubProfileId = createEventPostRequest.ClubProfileId
             };
             _context.Add(newPost);
             _context.SaveChanges();
