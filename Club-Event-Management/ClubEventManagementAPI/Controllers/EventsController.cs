@@ -138,7 +138,7 @@ namespace ClubEventManagementAPI.Controllers
         public IActionResult UpdateEvent([FromBody] UpdateEventRequest updateEventRequest, int id)
         {
             var userContext = _userContextService.GetUserContext(HttpContext.User.Identity as ClaimsIdentity);
-            if (!userContext.OwningClubIds.Contains(updateEventRequest.OwningClubProfileId))
+            if (!userContext.OwningClubIds.Contains(updateEventRequest.OwningClubProfileId) && !userContext.IsAdmin)
             {
                 return Unauthorized();
 
